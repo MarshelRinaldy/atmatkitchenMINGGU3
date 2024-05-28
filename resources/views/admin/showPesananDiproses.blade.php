@@ -7,10 +7,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <div class="container">
-        <h2>Daftar Pesanan yang Sedang Diproses</h2>
+        <h2 class="text-center text-white mb-4">Daftar Pesanan yang Sedang Diproses</h2>
 
         @foreach ($transaksis as $transaksi)
-            <div class="order-card">
+            <div class="order-card" style="background-color: rgba(0, 0, 0, 0.5)">
+
                 <div class="store-info">
                     <span class="store-name">No Pesanan : {{ $transaksi->no_transaksi }}</span>
 
@@ -22,7 +23,7 @@
                         <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
                             alt="{{ $detail->produk->nama }}" class="img-fluid ml-5" width="150px;">
                         <div class="product-info">
-                            <p class="product-name">{{ $detail->produk->nama }}</p>
+                            <h1 class="product-name">{{ $detail->produk->nama }}</h1>
                             {{-- Jumlah produk dalam transaksi --}}
                             <p class="order-quantity">x{{ $detail->jumlah_produk }}</p>
                             {{-- Status transaksi --}}
@@ -31,19 +32,36 @@
                         <div class="order-pricing">
                             {{-- Harga produk --}}
                             <h5 class="discounted-price">Rp{{ $detail->produk->harga }}</h5>
+                            {{-- Checkbox --}}
+                            <div class="form-check mt-2" style="padding-top: 40px;">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                    Centang jika sudah dikemas
+                                </label>
+                            </div>
                         </div>
-
                     </div>
-                    <hr>
                 @endforeach
 
                 <div class="order-actions">
                     {{-- Total harga transaksi --}}
+                    @if ($transaksi->status_pengantaran == 'delivery')
+                        <p>Pengantaran : {{ $transaksi->alamat_pengantaran }}</p>
+                        <p>Delivery : {{ $transaksi->jenis_delivery }}</p>
+                        <p>Jarak : {{ $transaksi->jarak_delivery }} KM</p>
+                    @else
+                        <p>Diambil Sendiri</p>
+                    @endif
+
+                    <hr>
                     <p class="total-price">Biaya Ongkir: Rp. {{ $transaksi->biaya_ongkir }},00</p>
                     <p class="total-price">Total Harga: Rp. {{ $transaksi->total_harga + $transaksi->biaya_ongkir }},00</p>
-                    {{-- Tombol aksi --}}
-                    <button type="button" class="btn btn-primary ready-to-ship-btn" data-id="{{ $transaksi->id }}">Siap
-                        Dikirim/Dipickup</button>
+                    {{-- Centered button --}}
+                    <div class="button-container">
+                        <button type="button" class="btn btn-primary ready-to-ship-btn"
+                            data-id="{{ $transaksi->id }}">Siap
+                            Dikirim/Dipickup</button>
+                    </div>
                 </div>
             </div>
         @endforeach
@@ -55,16 +73,15 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
+                    <h5 style="color: black" class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div style="color: black" class="modal-body">
                     Apakah Anda yakin pesanan ini siap dikirim/dipickup?
                 </div>
                 <div class="modal-footer">
-
                     <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
                 </div>
             </div>
@@ -78,6 +95,12 @@
     </form>
 
     <style>
+        body {
+            background: url('../assets/images/bgcake2.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+
         .container {
             width: 100%;
             max-width: 1200px;
@@ -86,10 +109,10 @@
         }
 
         .order-card {
-            border: 1px solid #ddd;
+            border: 1px solid #000000;
             padding: 20px;
             margin-bottom: 20px;
-            background-color: #fff;
+            background-color: #ff9d2e;
             border-radius: 10px;
         }
 
@@ -101,7 +124,7 @@
 
         .store-name {
             font-weight: bold;
-            font-size: 16px;
+            /* font-size: 16px; */
         }
 
         .order-details {
@@ -121,13 +144,13 @@
         }
 
         .product-name {
-            font-size: 16px;
+            /* font-size: 16px; */
             font-weight: bold;
         }
 
         .order-quantity {
-            font-size: 14px;
-            color: #555;
+            font-size: 20px;
+            color: #ffffff;
         }
 
         .order-status {
@@ -159,13 +182,24 @@
         .order-actions {
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
             align-items: flex-end;
             margin-top: 20px;
         }
 
         .order-actions p {
             margin-right: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: #ff9d2e;
+            border-color: #000;
         }
     </style>
 
