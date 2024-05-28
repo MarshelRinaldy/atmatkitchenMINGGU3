@@ -13,12 +13,14 @@
             <div class="order-card">
                 <div class="store-info">
                     <span class="store-name">No Pesanan : {{ $transaksi->no_transaksi }}</span>
+
                     {{-- Link ke detail toko --}}
                 </div>
-
+                <hr>
                 @foreach ($transaksi->detailTransaksis as $detail)
                     <div class="order-details">
-                        <img src="../image/{{ $detail->produk->image }}" alt="image" class="product-image">
+                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5" width="150px;">
                         <div class="product-info">
                             <p class="product-name">{{ $detail->produk->nama }}</p>
                             {{-- Jumlah produk dalam transaksi --}}
@@ -28,16 +30,17 @@
                         </div>
                         <div class="order-pricing">
                             {{-- Harga produk --}}
-                            <p class="discounted-price">Rp{{ $detail->produk->harga }}</p>
+                            <h5 class="discounted-price">Rp{{ $detail->produk->harga }}</h5>
                         </div>
+
                     </div>
                     <hr>
                 @endforeach
 
                 <div class="order-actions">
                     {{-- Total harga transaksi --}}
-                    <p class="total-price">Biaya Ongkir: Rp{{ $transaksi->biaya_ongkir }}</p>
-                    <p class="total-price">Total Harga: Rp{{ $transaksi->total_harga + $transaksi->biaya_ongkir }}</p>
+                    <p class="total-price">Biaya Ongkir: Rp. {{ $transaksi->biaya_ongkir }},00</p>
+                    <p class="total-price">Total Harga: Rp. {{ $transaksi->total_harga + $transaksi->biaya_ongkir }},00</p>
                     {{-- Tombol aksi --}}
                     <button type="button" class="btn btn-primary ready-to-ship-btn" data-id="{{ $transaksi->id }}">Siap
                         Dikirim/Dipickup</button>

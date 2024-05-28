@@ -14,17 +14,28 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
             padding: 0;
+            margin: 0;
+            background-image: url('../assets/images/bgcake2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+                "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            user-select: none;
         }
 
         .container {
             width: 80%;
             margin: 50px auto;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.8);
+            /* Ubah nilai alpha (0.8) sesuai kebutuhan */
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
         }
 
         h1 {
@@ -35,9 +46,11 @@
         .navbar {
             display: flex;
             justify-content: space-around;
-            background-color: #f8f8f8;
+            background-color: rgba(248, 248, 248, 0.8);
+            /* Ubah nilai alpha (0.8) sesuai kebutuhan */
             padding: 10px;
             border-bottom: 1px solid #ddd;
+            border-radius: 10px;
         }
 
         .navbar a {
@@ -139,11 +152,15 @@
 
         .transaksi {
             padding-top: 20px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(224, 224, 224, 0.7);
+            /* Ubah nilai alpha (0.5) sesuai kebutuhan */
             border-radius: 10px;
             margin-bottom: 20px;
             overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.7);
+            /* Ubah nilai alpha (0.8) sesuai kebutuhan */
         }
+
 
         .transaction-date {
             float: right;
@@ -243,26 +260,55 @@
             @endforeach
         </div>
 
+        @php
+            function truncateDescription($description, $limit = 100)
+            {
+                if (strlen($description) > $limit) {
+                    return substr($description, 0, $limit) . '...';
+                }
+                return $description;
+            }
+        @endphp
+
 
         <div id="konfirmasi-pembayaran" class="tab-content">
-            <h2 class="card-title mb-5">Menunggu Konfirmasi Pembayaran</h2>
+            <h1 class="card-title text-center mb-5 mt-2">Menunggu Konfirmasi Pembayaran</h1>
             @foreach ($transaksis as $transaksi)
                 @if (in_array($transaksi->status_transaksi, ['menunggu konfirmasi', 'menunggu konfirmasi mo']))
-                    <div class="transaksi">
-                        <div class="card-body">
-                            <h5 class="card-title">No Pesanan : {{ $transaksi->no_transaksi }}</h5>
-                            <div class="custom-img-container">
-                                @foreach ($transaksi->detailTransaksis as $detail)
-                                    <div class="custom-img-item">
-                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
-                                            alt="{{ $detail->produk->nama }}" class="img-fluid">
-                                        <div>{{ $detail->produk->nama }}</div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="transaksi">
+                                <h5 class="card-title ml-5">No Transaksi : {{ $transaksi->no_transaksi }}</h5>
+                                <hr>
+                                <div class="row mr-5">
+                                    @foreach ($transaksi->detailTransaksis as $detail)
+                                        <div class="col-10 mb-5">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                        alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                        width="150px;">
+                                                </div>
+                                                <div class="col-6">
+                                                    <h2>{{ $detail->produk->nama }}</h2>
+                                                    <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    <p>Quantity : {{ $detail->jumlah_produk }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mt-5 d-flex justify-content-end">
+                                            <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                {{ $detail->produk->harga }},00</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-9"></div>
+                                    <div class="col-3">
+                                        <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
                                     </div>
-                                @endforeach
-                            </div>
-                            <div>
-                                <span class="card-text"><strong>Total:
-                                        Rp{{ number_format($transaksi->total_harga, 2, ',', '.') }}</strong></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -271,7 +317,52 @@
         </div>
 
 
+
         <div id="diproses" class="tab-content">
+            <h1 class="card-title text-center mb-5 mt-2">Menunggu Konfirmasi Pembayaran</h1>
+            @foreach ($transaksis as $transaksi)
+                @if ($transaksi->status_transaksi == 'sedang dikemas')
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="transaksi">
+                                <h5 class="card-title ml-5">No Transaksi : {{ $transaksi->no_transaksi }}</h5>
+                                <hr>
+                                <div class="row mr-5">
+                                    @foreach ($transaksi->detailTransaksis as $detail)
+                                        <div class="col-10 mb-5">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                        alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                        width="150px;">
+                                                </div>
+                                                <div class="col-6">
+                                                    <h2>{{ $detail->produk->nama }}</h2>
+                                                    <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    <p>Quantity : {{ $detail->jumlah_produk }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mt-5 d-flex justify-content-end">
+                                            <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                {{ $detail->produk->harga }},00</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-9"></div>
+                                    <div class="col-3">
+                                        <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        </div>
+        {{-- <div id="diproses" class="tab-content">
             <h2 class="card-title mb-5">Produk yang sedang dikemas</h2>
             @foreach ($transaksis as $transaksi)
                 @if ($transaksi->status_transaksi == 'sedang dikemas')
@@ -299,7 +390,7 @@
                     </div>
                 @endif
             @endforeach
-        </div>
+        </div> --}}
 
         <div id="dikirim" class="tab-content">
             <h2 class="card-title mb-5">Produk yang dikirim / Sudah bisa di pickup</h2>
