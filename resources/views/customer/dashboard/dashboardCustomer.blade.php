@@ -8,7 +8,16 @@
         <article>
             <section class="hero" id="home" style="background-image: {{asset('assets/images/bgcake2.jpg')}}">
                 <div class="container">
-
+                    @if (session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
                     <div class="hero-content">
 
                         <p class="hero-subtitle">Savor Every Bite</p>
@@ -43,9 +52,6 @@
                 <div class="container">
 
                     <ul class="promo-list has-scrollbar">
-
-
-
 
                         @for ($i = 0; $i < 5; $i++)
                             <li class="promo-item">
@@ -214,55 +220,57 @@
                             <button type="button" class="search-button">Search</button>
                         </li>
                     </ul>
+                    <h2 class="h2 section-title">Our Produk</h2>
+                   
 
                     <ul class="food-menu-list">
                         @foreach ($produk as $item)
-                            <li>
-                                <div class="food-menu-card">
-                                    <div class="card-banner">
-                                        <img src="{{ asset('./storage/dukpro/' . $item->image) }}" style="width: 300px;" loading="lazy" alt="cake" class="w-100">
-                                        <div class="badge">-15%</div>
-                                        <form action="{{ route('customer.cart.add') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="product_id" value="{{ $item->id }}">
-                                            <button type="submit" class="btn food-menu-btn">Add To Cart</button>
-                                        </form>
-                                    </div>
-                                    <div class="wrapper">
-                                        <p class="category">Cake</p>
-                                        <div class="rating-wrapper">
-                                            <ion-icon name="star"></ion-icon>
-                                            <ion-icon name="star"></ion-icon>
-                                            <ion-icon name="star"></ion-icon>
-                                            <ion-icon name="star"></ion-icon>
-                                            <ion-icon name="star"></ion-icon>
-                                        </div>
-                                    </div>
-                                    <h3 class="h3 card-title">{{ $item['nama'] }}</h3>
-                                    <div class="price-wrapper">
-                                        <p class="price-text">Price:</p>
-                                        <data class="price">Rp. {{ $item['harga'] }}</data>
-                                    </div>
-                                    {{-- stok --}}
-                                    <?php
-                                    if($item['tanggal_kadaluarsa'] < $date ){
-                                        $item['stok'] =0;
-                                    }
-                                    ?>
-                                    <p class="text-muted text-start">Stok: {{ $item['stok'] }}</p>
+                        <li>
+                            <div class="food-menu-card">
+                                <div class="card-banner">
+                                    <img src="{{ asset('storage/dukpro/' . $item->image) }}" style="width: 300px;" loading="lazy" alt="cake" class="w-100">
+                                    <form action="{{ route('customer.cart.add') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $item->id }}">
+                                        <input type="hidden" name="status" value="{{ $item->status }}">
+                                        <button type="submit" class="btn food-menu-btn">Add To Cart</button>
+                                    </form>
                                 </div>
-                            </li>
+                                <div class="wrapper">
+                                    <p class="category">Cake</p>
+                                    <div class="rating-wrapper">
+                                        <ion-icon name="star"></ion-icon>
+                                        <ion-icon name="star"></ion-icon>
+                                        <ion-icon name="star"></ion-icon>
+                                        <ion-icon name="star"></ion-icon>
+                                        <ion-icon name="star"></ion-icon>
+                                    </div>
+                                </div>
+                                <h3 class="h3 card-title">{{ $item->nama }}</h3>
+                                <div class="price-wrapper">
+                                    <p class="price-text">Price:</p>
+                                    <data class="price">Rp. {{ $item->harga }}</data>
+                                </div>
+                                <?php
+                                if ($item->tanggal_kadaluarsa < $date) {
+                                    $item->stok = 0;
+                                    $item->status = "Preorder";
+                                }
+                                ?>
+                                <p class="text-muted text-start">Stok: {{ $item->stok }}</p>
+                                <p class="text-muted text-start">Status: {{ $item->status }}</p>
+                            </div>
+                        </li>
                         @endforeach
                     </ul>
+
                     <h2 class="h2 section-title">Our Hampers</h2>
                     <ul class="food-menu-list">
-
                         @foreach ($hampers as $hamper)
                         <li>
                             <div class="food-menu-card">
                                 <div class="card-banner">
-                                    <img src="{{ asset('./storage/hampers/' . $hamper->image) }}" style="width: 300px;"
-                                        loading="lazy" alt="hamper" class="w-100">
+                                    <img src="{{ asset('storage/hampers/' . $hamper->image) }}" style="width: 300px;" loading="lazy" alt="hamper" class="w-100">
                                     <div class="badge">New</div>
                                     <form action="{{ route('customer.cart.add') }}" method="POST">
                                         @csrf
@@ -280,13 +288,12 @@
                                         <ion-icon name="star"></ion-icon>
                                     </div>
                                 </div>
-                                <h3 class="h3 card-title">{{ $hamper['nama'] }}</h3>
+                                <h3 class="h3 card-title">{{ $hamper->nama }}</h3>
                                 <div class="price-wrapper">
                                     <p class="price-text">Price:</p>
-                                    <data class="price">Rp. {{ $hamper['harga'] }}</data>
-                                    {{-- stok --}}
+                                    <data class="price">Rp. {{ $hamper->harga }}</data>
                                 </div>
-                                <p class="text-muted text-start">Stok: {{ $hamper['stok'] }}</p>
+                                <p class="text-muted text-start">Stok: {{ $hamper->stok }}</p>
                             </div>
                         </li>
                         @endforeach

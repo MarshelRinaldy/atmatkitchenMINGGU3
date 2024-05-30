@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index(){
         
-        $data['produk'] = Dukpro::where('status','Available')->get();
+        $data['produk'] = Dukpro::whereIn('status', ['Available', 'Preorder'])->get();
         $data['hampers'] = Hampers::all();
         return view('dashboard',$data);
     }
@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
      public function home(){
         
-        $data['produk'] = Dukpro::where('status','Available')->get();
+        $data['produk'] = Dukpro::whereIn('status', ['Available', 'Preorder'])->get();
 
         return view('dashboardCustomer',$data);
     }
