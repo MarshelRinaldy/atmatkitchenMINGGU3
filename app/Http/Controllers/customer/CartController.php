@@ -19,64 +19,81 @@ use Illuminate\Support\Str;
 class CartController extends Controller
 {
     public function addToCart(Request $request)
-    {
-        $productId = $request->input('product_id');
-        $hamperId = $request->input('hamper_id');
+{
+    $productId = $request->input('product_id');
+    $hamperId = $request->input('hamper_id');
+    $cart = Session::get('cart', []);
 
-        if ($productId) {
-            $product = Dukpro::find($productId);
+    if ($productId) {
+        $product = Dukpro::find($productId);
 
-            if (!$product) {
-                return redirect()->back()->with('error', 'Product not found.');
-            }
-
-            $cart = Session::get('cart', []);
-
-            if (isset($cart['products'][$productId])) {
-                $cart['products'][$productId]['quantity']++;
-            } else {
-                $cart['products'][$productId] = [
-                    "id" => $product->id, // Add product ID to cart item for easier identification
-                    "nama" => $product->nama,
-                    "quantity" => 1,
-                    "harga" => $product->harga,
-                    "image" => $product->image
-                ];
-            }
-
-            Session::put('cart', $cart);
-
-            return redirect()->back()->with('success', 'Product added to cart successfully!');
+        if (!$product) {
+            return redirect()->back()->with('error', 'Product Tidak Ada.');
         }
 
-        if ($hamperId) {
-            $hamper = Hampers::find($hamperId);
+        $productStatus = $product->status;
 
-            if (!$hamper) {
-                return redirect()->back()->with('error', 'Hamper not found.');
-            }
+        // Check for conflicting status
+        $preorderInCart = isset($cart['products']) && collect($cart['products'])->contains('status', 'Preorder');
+        $availableInCart = isset($cart['products']) && collect($cart['products'])->contains('status', 'Available');
+        $hamperInCart = isset($cart['hampers']) && count($cart['hampers']) > 0;
 
-            $cart = Session::get('cart', []);
-
-            if (isset($cart['hampers'][$hamperId])) {
-                $cart['hampers'][$hamperId]['quantity']++;
-            } else {
-                $cart['hampers'][$hamperId] = [
-                    "id" => $hamper->id, // Add hamper ID to cart item for easier identification
-                    "nama" => $hamper->nama,
-                    "quantity" => 1,
-                    "harga" => $hamper->harga,
-                    "image" => $hamper->image
-                ];
-            }
-
-            Session::put('cart', $cart);
-
-            return redirect()->back()->with('success', 'Hamper added to cart successfully!');
+        if (($productStatus == 'Preorder' && ($availableInCart || $hamperInCart)) ||
+            ($productStatus == 'Available' && $preorderInCart)) {
+            return redirect()->back()->with('error', 'Tidak dapat mencampur produk Preorder dengan produk Tersedia atau hampers');
         }
 
-        return redirect()->back()->with('error', 'No product or hamper selected.');
+        if (isset($cart['products'][$productId])) {
+            $cart['products'][$productId]['quantity']++;
+        } else {
+            $cart['products'][$productId] = [
+                "id" => $product->id,
+                "nama" => $product->nama,
+                "quantity" => 1,
+                "harga" => $product->harga,
+                "image" => $product->image,
+                "status" => $product->status
+            ];
+        }
+
+        Session::put('cart', $cart);
+
+        return redirect()->back()->with('success', 'Sukses Memasukan Produk Ke Dalam Cart!');
     }
+
+    if ($hamperId) {
+        $hamper = Hampers::find($hamperId);
+
+        if (!$hamper) {
+            return redirect()->back()->with('error', 'Hamper Tidak Tersedia.');
+        }
+
+        $preorderInCart = isset($cart['products']) && collect($cart['products'])->contains('status', 'Preorder');
+
+        if ($preorderInCart) {
+            return redirect()->back()->with('error', 'Tidak dapat menambahkan hampers apabila sudah ada produk Preorder di Cart.');
+        }
+
+        if (isset($cart['hampers'][$hamperId])) {
+            $cart['hampers'][$hamperId]['quantity']++;
+        } else {
+            $cart['hampers'][$hamperId] = [
+                "id" => $hamper->id,
+                "nama" => $hamper->nama,
+                "quantity" => 1,
+                "harga" => $hamper->harga,
+                "image" => $hamper->image
+            ];
+        }
+
+        Session::put('cart', $cart);
+
+        return redirect()->back()->with('success', 'Sukses Menambahkan Hampers Ke Dalam Cart!');
+    }
+
+    return redirect()->back()->with('error', 'No product or hamper selected.');
+}
+
 
     public function showCart()
     {

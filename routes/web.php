@@ -17,6 +17,7 @@ use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\mo\LaporanController;
 use App\Http\Controllers\mo\TransaksiController as MoTransaksiController;
+use App\Http\Controllers\mo\TransaksiPOController as MoTransaksiPOController;
 use App\Http\Controllers\registerController;
 use App\Http\Controllers\PromoPointController;
 use App\Http\Controllers\PemasukanPerusahaanController;
@@ -230,6 +231,21 @@ Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     Route::get('/resep/search', [ResepController::class, 'search_resep'])->name('search_resep');
     Route::post('/resep/update/{produk}', [ResepController::class, 'update_resep'])->name('update_resep');
     Route::post('/resep/delete/{produk}', [ResepController::class, 'delete_resep'])->name('delete_resep');
+});
+
+
+
+
+//PEMROSESAN PESANAN DAN LAPORAN
+
+Route::middleware(['auth', CheckRole::class . ':mo'])->group(function () {
+    Route::group(['prefix' => 'mo', 'as' => 'mo.'], function () {
+        // show_konfirmasi
+        Route::get('pemrosesan/pesanan', [MoTransaksiPOController::class, 'pesanan'])->name('pemrosesanpesanan');
+        Route::put('pemrosesan/pesanan/accept', [MoTransaksiPOController::class, 'pesanan_accept'])->name('pemrosesanpesanan.accept');
+        Route::get('laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+        Route::get('laporan/stok_bb', [LaporanController::class, 'stok_bb'])->name('laporan.stok_bb');
+    });
 });
 
 
