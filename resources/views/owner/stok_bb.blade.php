@@ -1,6 +1,6 @@
 @extends('NavbarMO')
 @section('content')
-<style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
         body {
@@ -107,7 +107,6 @@
             margin-top: 10px;
         }
     </style>
-
     <body>
         <main class="p-4">
             <div class="card shadow" style="margin-top:50px">
@@ -115,11 +114,7 @@
                     <p class="fw-bold mb-1">Atma Kitchen</p>
                     <p class="fs-6">Jl. Centralpark No. 10 Yogyakarta</p>
                     {{-- laporan penjualan bulanan under line --}}
-                    <p class="fs-5 fw-bold h4 mt-2 mb-1"><span style="border-bottom: 2px solid black;">Laporan Penjualan Bulanan</span></p>
-                    {{-- nama bulan --}}
-                    <p class="fs-6   mb-1">Bulan : {{Date('F')}}</p>
-                    {{-- tahun --}}
-                    <p class="fs-6 mb-1">Tahun : {{Date('Y')}}</p>
+                    <p class="fs-5 fw-bold h4 mt-2 mb-1"><span style="border-bottom: 2px solid black;">Laporan Stok Bahan Baku</span></p>
                     {{-- tanggal cetak --}}
                     <p class="fs-6">Tanggal Cetak : {{Date('d F Y')}}</p>
                     {{-- table isinya produk, kuantitas, harga, jumlah uang --}}
@@ -127,37 +122,26 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Produk</th>
-                                <th>Kuantitas</th>
-                                <th>Harga</th>
-                                <th>Jumlah Uang</th>
+                                <th>Nama Bahan</th>
+                                <th>Satuan</th>
+                                <th>Stok</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $total = 0; ?>
-                            @if ($transaksis->isEmpty())
+                            @if ($bahanBakus->isEmpty())
                                 <tr>
                                     <td colspan="5" class="text-center">Tidak ada data</td>
                                 </tr>
                             @endif
-                            @foreach ($produkTerjual as $produkId => $totalTerjual)
-                            <?php
-                            $produk = \App\Models\Dukpro::find($produkId);
-                            ?>
+                            @foreach ($bahanBakus as $bb)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $produk->nama }}</td>
-                                    <td>{{ $totalTerjual }}</td>
-                                    <td>Rp. {{ number_format($produk->harga) }}</td>
-                                    <td>Rp. {{ number_format($produk->harga * $totalTerjual) }}</td>
+                                    <td>{{ $bb->nama_bahan_baku }}</td>
+                                    <td>{{ $bb->satuan_bahan_baku }}</td>
+                                    <td>{{ number_format($bb->stok_bahan_baku, 0, ',', '.') }}</td>
+
                                 </tr>
-                                <?php $total += $produk->harga * $totalTerjual; ?>
                             @endforeach
-                            {{-- total uang yang didapat --}}
-                            <tr>
-                                <td colspan="4" class="fw-bold">Total</td>
-                                <td class="fw-bold">Rp. {{ number_format($total) }}</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>

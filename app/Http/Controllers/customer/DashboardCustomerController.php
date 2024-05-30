@@ -18,12 +18,12 @@ class DashboardCustomerController extends Controller
 
         if ($date) {
             $selectedDate = Carbon::parse($date);
-            $produk = Dukpro::where('status', 'Available')
+            $produk = Dukpro::whereIn('status', ['Available', 'Preorder'])
                 // ->where('tanggal_kadaluarsa', '>=', $today)
                 // ->where('tanggal_kadaluarsa', '<=', $selectedDate)
                 ->get();
         } else {
-            $produk = Dukpro::where('status', 'Available')
+            $produk = Dukpro::whereIn('status', ['Available', 'Preorder'])
                 ->where('tanggal_kadaluarsa', '>=', $today)
                 ->get();
         }
@@ -36,7 +36,7 @@ class DashboardCustomerController extends Controller
     public function filter(Request $request)
     {
         $date = $request->input('date');
-        $data['produk'] = Dukpro::where('status','Available')
+        $data['produk'] = Dukpro::whereIn('status', ['Available', 'Preorder'])
             ->where('tanggal_kadaluarsa', '>=', $date)
             ->get();
         return response()->json($data);

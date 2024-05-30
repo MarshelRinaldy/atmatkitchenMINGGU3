@@ -223,6 +223,21 @@
                     </ul>
                 </li>
                 <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#transaksi" aria-expanded="false" aria-controls="transaksi">
+                        <i class="lni lni-agenda"></i>
+                        <span>Laporan</span>
+                    </a>
+                    <ul id="transaksi" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="{{ route('mo.laporan.penjualan') }}" class="sidebar-link">Penjualan Bulanan</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="{{ route('mo.laporan.stok_bb') }}" class="sidebar-link">Stok Bahan Baku</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item">
                     <a href="{{ route('index_gaji_bonus_karyawan') }}" class="sidebar-link">
                         <i class="lni lni-agenda"></i>
                         <span>Gaji dan Bonus</span>
