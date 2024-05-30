@@ -1,4 +1,4 @@
-@extends('NavbarAdmin')
+@extends('NavbarMO')
 @section('content')
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
@@ -96,13 +96,14 @@
         <main>
             <div class="row" style="margin-left: 80px; margin-top: 80px">
                 <div class="col-6 title">
-                    <h1 style="font-weight: 800">Telat Pembayaran</h1>
-                    <p style="font-size: 25px; font-weight: 200;">Hi Admin, Welcome in Dashboard!</p>
+                    <h1 style="font-weight: 800">Data Karyawan</h1>
+                    <p style="font-size: 25px; font-weight: 200;">Hi MO, Welcome in Dashboard!</p>
+
                 </div>
                 <div class="col-6">
                     <div class="profile">
                         <img src="image/pictureProfile.png" alt="" width="80px">
-                        <p style="padding-top: 10px">Admin</p>
+                        <p style="padding-top: 10px">MO</p>
                         <div class="dropdown" id="dropdownMenu" style="border-radius: 10px;;">
                             <button onclick="toggleDropdown()">Profile</button>
                             <button onclick="logout()">Logout</button>
@@ -115,12 +116,13 @@
 
             <div class="row" style="margin-left: 80px; margin-top: 40px;">
                 <div class="col-6">
-
+                    <button class="btn-search" style="margin-right: 10px;"
+                        onclick="window.location.href='{{ route('tambahKaryawan') }}'">Added</button>
                 </div>
                 <div class="col-6">
                     <div style="justify-content: flex-end; display: flex; margin-right: 10%;">
                         <a href="" style="margin-right: 10px; color: #000000; font-weight: 500;">Search</a>
-                        <form action="" method="GET">
+                        <form action="{{ route('dataKaryawan') }}" method="GET">
                             <input style="border-radius: 22px; padding-left: 10px;" type="search" name="search">
                         </form>
                     </div>
@@ -130,36 +132,44 @@
             <table>
                 <tr style="background-color: #E2BFB3; height: 80px;">
                     <th>NO</th>
-                    <th>PEMBELI</th>
-                    <th>NO TRANSAKSI</th>
-                    <th>ALAMAT PENGANTARAN</th>
-                    <th>WAKTU TELAT</th>
-                    <th>STATUS</th>
-                    <th>ACTION</th>
+                    <th>FOTO</th>
+                    <th>NAMA</th>
+                    <th>NIP</th>
+                    <th>JABATAN</th>
+                    <th>GAJI</th>
+                    <th colspan="2">ACTION</th>
                 </tr>
 
-                @foreach ($transaksis as $index => $transaksi)
-                    @php
-                        $now = \Carbon\Carbon::now();
-                        $created = \Carbon\Carbon::parse($transaksi->created_at);
-                        $diffInHours = $created->diffInHours($now);
-                        $days = intdiv($diffInHours, 24);
-                        $hours = $diffInHours % 24;
-                    @endphp
-                    <tr style="height: 60px;">
+                @foreach ($users as $index => $karyawan)
+                    <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $transaksi->user->name }}</td>
-                        <td>{{ $transaksi->no_transaksi }}</td>
-                        <td>{{ $transaksi->alamat_pengantaran }}</td>
+                        <td style="width: 60px"><img src="image/pictureProfile.png" alt="" width="100px"></td>
+                        <td>{{ $karyawan->name }}</td>
                         <td>
-                            <p>{{ $days }} hari {{ $hours }} jam</p>
+                            @if ($karyawan->pegawai)
+                                {{ $karyawan->pegawai->nip }}
+                            @else
+                                N/A
+                            @endif
                         </td>
-                        <td style="color: #f91313">{{ $transaksi->status_transaksi }}</td>
+                        <td>{{ $karyawan->role }}</td>
                         <td>
-                            <form action="{{ route('batalkan_pesanan_telat_bayar', $transaksi->id) }}" method="POST">
-                                @method('patch')
+                            @if ($karyawan->pegawai)
+                                {{ $karyawan->pegawai->gaji }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td>
+                            <form action="{{ route('edit_pegawai', $karyawan) }}" method="get">
+                                <button type="submit" class="btn-search">Update</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{{ route('delete_pegawai', $karyawan) }}" method="POST">
+                                @method('delete')
                                 @csrf
-                                <button type="submit" class="btn-search">Batalkan</button>
+                                <button type="submit" class="btn-search">Delete</button>
                             </form>
                         </td>
                     </tr>

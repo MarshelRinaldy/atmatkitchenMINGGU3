@@ -24,6 +24,7 @@ use App\Http\Controllers\PemasukanPerusahaanController;
 use App\Http\Controllers\pencatatanBBController;
 use App\Http\Controllers\pencatatanPengeluaranLainController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\LaporanController as OwnerMoLaporanController;
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,7 @@ use App\Http\Middleware\CheckRole;
 
 use App\Models\Customer;
 use App\Models\BahanBaku;
+
 
 
 
@@ -134,8 +136,9 @@ Route::patch('/input_pengiriman/{id}/{total_harga}', [TransaksiController::class
 Route::get('/show_konfirmasi_pesanan', [TransaksiController::class, 'show_konfirmasi_pesanan'])->name('show_konfirmasi_pesanan');
 Route::get('/detailKonfirmasiPesanan/{id}', [TransaksiController::class, 'detail_konfirmasi_pesanan'])->name('detail_konfirmasi_pesanan');
 Route::get('/show_pesanan_diproses', [TransaksiController::class, 'show_pesanan_diproses'])->name('show_pesanan_diproses');
+Route::get('/show_pesanan_telat_bayar', [TransaksiController::class, 'show_pesanan_telat_bayar'])->name('show_pesanan_telat_bayar');
 Route::patch('/pesanan_siap_dikirim_dipickup/{id}', [TransaksiController::class, 'pesanan_siap_dikirim_dipickup'])->name('pesanan_siap_dikirim_dipickup');
-
+Route::patch('batalkan_pesanan_telat_bayar/{id}', [TransaksiController::class, 'batalkan_pesanan_telat_bayar'])->name('batalkan_pesanan_telat_bayar');
 //INI UNTUK ADMIN UNTUK KONFIRMASI PESANAN DAN MENGINPUTKAN JUMLAH INCOME PERUSAHAAN
 Route::post('/store_pemasukan_perusahaan', [PemasukanPerusahaanController::class, 'store_pemasukan_perusahaan'])->name('store_pemasukan_perusahaan');
 
@@ -144,6 +147,11 @@ Route::get('/show_payment_pesanan_list', [CustomerController::class, 'show_payme
 Route::get('/payment_pesanan/{id}', [CustomerController::class, 'payment_pesanan'])->name('payment_pesanan');
 Route::patch('/store/bukti_pembayaran/{id}', [CustomerController::class, 'store_bukti_pembayaran'])->name('store_bukti_pembayaran');
 Route::patch('/pesanan_selesai/{id}', [CustomerController::class, 'pesanan_selesai'])->name('pesanan_selesai');
+
+
+//INI UNTUK LAPORAN OWNER DAN MO (MACE)
+Route::get('/show_laporan_penjualan_keseluruhan', [OwnerMoLaporanController::class, 'show_laporan_penjualan_keseluruhan'])->name('show_laporan_penjualan_keseluruhan');
+Route::get('/chart-penjualan-bulanan', [OwnerMoLaporanController::class, 'show_chart_penjualan_bulanan'])->name('chart_penjualan_bulanan');
 
 // INI UNTUK ADMIN SAJA
 Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
@@ -176,8 +184,7 @@ Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     Route::delete('/BahanBaku/delete_bahanBaku/{BahanBaku}', [BahanBakuController::class, 'destroy_BahanBaku'])->name('destroy_BahanBaku');
     // Route::get('/BahanBaku/tampilanDataBahanBaku', [BahanBakuController::class, 'store_BahanBaku'])->name('tampilanDataBahanBaku');
 
-
-
+    
     //hampers controller
     Route::controller(hampersController::class)->group(function () {
         Route::get('/hampers', 'index')->name('hampers.index');

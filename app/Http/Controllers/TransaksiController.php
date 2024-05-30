@@ -17,30 +17,28 @@ class TransaksiController extends Controller
 
         // dd($transaksis);
 
-    // Pass the transactions data to the view
     return view('admin.inputJarakPengiriman', compact('transaksis'));
     }
 
     public function update_pengiriman($id)
     {
-        // Retrieve the transaction with the given ID and eager load the user data
+      
         $transaksi = Transaksi::with('user')->findOrFail($id);
 
-        // Pass the transaction data to the view
+      
         return view('admin.updatePengiriman', compact('transaksi'));
     }
 
     public function input_pengiriman(Request $request, $id, $total_harga)
     {
-        // Retrieve the transaction
+       
         $transaksi = Transaksi::find($id);
 
         if (!$transaksi) {
             return response()->json(['message' => 'Transaction not found'], 404);
         }
 
-        // Calculate the delivery cost based on the distance
-        $jarak = $request->input('jarak'); // Ensure you are getting the 'jarak' input
+        $jarak = $request->input('jarak'); 
         $biaya_ongkir = 0;
 
         if ($jarak <= 5) {
@@ -53,15 +51,14 @@ class TransaksiController extends Controller
             $biaya_ongkir = 25000;
         }
 
-        // Update the transaction attributes
+       
         $transaksi->jarak_delivery = $jarak;
         $transaksi->biaya_ongkir = $biaya_ongkir;
         $transaksi->total_harga = $total_harga + $biaya_ongkir;
         $transaksi->status_transaksi = "menunggu pembayaran";
 
-        $transaksi->save(); // Don't forget to save the updated transaction
+        $transaksi->save(); 
 
-        // Pass the transactions data to the view
         return redirect()->route('show_pengiriman')->with('success', 'Transaksi berhasil dikonfirmasi dan akan menunggu pembayaran');
     }
 
@@ -85,28 +82,56 @@ class TransaksiController extends Controller
     }
 
     public function show_pesanan_telat_bayar(){
-    // Get the current time
+    
     $now = Carbon::now();
     
-    // Get the transactions that have status 'menunggu pembayaran' and are older than 24 hours
     $transaksis = Transaksi::where('status_transaksi', 'menunggu pembayaran')
                             ->where('created_at', '<', $now->subDay())
                             ->get();
 
-        return view('admin.showPesananDiproses', compact('transaksis'));
+    return view('admin.showPesananTelatPembayaran', compact('transaksis'));
+}
+
+    public function batalkan_pesanan_telat_bayar($id) {
+   
+    $transaksi = Transaksi::findOrFail($id);
+
+    
+    $detailTransaksis = $transaksi->detailTransaksis;
+
+    
+    foreach ($detailTransaksis as $detail) {
+        if ($detail->produk && !$detail->is_hampers) {
+           
+            $produk = $detail->produk;
+            $produk->stok += $detail->jumlah_produk;
+            $produk->save();
+        } elseif ($detail->hampers) {
+          
+            $hampers = $detail->hampers;
+            $hampers->stok += $detail->jumlah_produk;
+            $hampers->save();
+        }
     }
+
+   
+    $transaksi->status_transaksi = 'Dibatalkan';
+    $transaksi->save();
+
+    return redirect()->route('show_pesanan_telat_bayar')->with('success', 'Berhasil Membatalkan Transaksi Tersebut');
+}
+
 
     public function pesanan_siap_dikirim_dipickup($id)
     {
-        // Mengambil objek Transaksi berdasarkan $id
+        
         $transaksi = Transaksi::findOrFail($id);
-
-        // Ubah status transaksi menjadi 'selesai'
         $transaksi->status_transaksi = 'sudah dikonfirmasi';
         $transaksi->save();
 
-        // Redirect ke halaman home atau halaman lain yang sesuai
+       
         return redirect()->route('show_pesanan_diproses');
     }
+
     
 }

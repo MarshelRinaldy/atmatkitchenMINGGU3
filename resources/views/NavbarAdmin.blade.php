@@ -250,10 +250,16 @@
                         </li>
 
                         <li class="sidebar-item">
+                            <a href="{{ route('show_konfirmasi_pesanan') }}" class="sidebar-link">Konfirmasi Pesanan</a>
+                        </li>
+
+                        <li class="sidebar-item">
                             <a href="{{ route('show_pesanan_diproses') }}" class="sidebar-link">Pesanan Diproses</a>
                         </li>
+
                         <li class="sidebar-item">
-                            <a href="{{ route('show_konfirmasi_pesanan') }}" class="sidebar-link">Konfirmasi Pesanan</a>
+                            <a href="{{ route('show_pesanan_telat_bayar') }}" class="sidebar-link">Pesanan Telat
+                                Pembayaran</a>
                         </li>
                     </ul>
                 </li>
