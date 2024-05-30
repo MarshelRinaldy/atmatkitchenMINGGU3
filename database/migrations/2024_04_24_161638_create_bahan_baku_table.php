@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('stok_bahan_baku');
             $table->string('satuan_bahan_baku');
             $table->integer('harga_bahan_baku');
+            $table->integer('total_digunakan')->nullable();
             $table->timestamps();
         });
     }

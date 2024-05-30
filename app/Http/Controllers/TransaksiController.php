@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\Hampers;
+use App\Models\BahanBaku;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use App\Models\BahanBakuUsage;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 
 class TransaksiController extends Controller
 {
@@ -121,17 +124,60 @@ class TransaksiController extends Controller
     return redirect()->route('show_pesanan_telat_bayar')->with('success', 'Berhasil Membatalkan Transaksi Tersebut');
 }
 
+public function pesanan_siap_dikirim_dipickup($id)
+{
+    // Find the transaction
+    $transaksi = Transaksi::with('detailTransaksis.produk.resep', 'detailTransaksis.hampers.details.dukpro.resep')->findOrFail($id);
 
-    public function pesanan_siap_dikirim_dipickup($id)
-    {
-        
-        $transaksi = Transaksi::findOrFail($id);
-        $transaksi->status_transaksi = 'sudah dikonfirmasi';
-        $transaksi->save();
+    // Loop through each detailTransaksi
+    foreach ($transaksi->detailTransaksis as $detailTransaksi) {
+        if ($detailTransaksi->is_hampers) {
+            // Handle hampers
+            $hampers = $detailTransaksi->hampers;
 
-       
-        return redirect()->route('show_pesanan_diproses');
+            foreach ($hampers->details as $hampersDetail) {
+                $produk = $hampersDetail->dukpro;
+                
+                foreach ($produk->resep as $resep) {
+                    $bahanBaku = $resep->bahanBaku;
+                    
+                    // Create BahanBakuUsage
+                    BahanBakuUsage::create([
+                        'bahan_baku_id' => $bahanBaku->id,
+                        'transaksi_id' => $transaksi->id,
+                        'tanggal_transaksi' => now(),
+                        'jumlah_digunakan' => $resep->jumlah * $detailTransaksi->jumlah_produk
+                    ]);
+
+                    // Update BahanBaku total_digunakan
+                    $bahanBaku->increment('total_digunakan', $resep->jumlah * $detailTransaksi->jumlah_produk);
+                }
+            }
+        } else {
+            // Handle regular products
+            $produk = $detailTransaksi->produk;
+
+            foreach ($produk->resep as $resep) {
+                $bahanBaku = $resep->bahanBaku;
+
+                // Create BahanBakuUsage
+                BahanBakuUsage::create([
+                    'bahan_baku_id' => $bahanBaku->id,
+                    'transaksi_id' => $transaksi->id,
+                    'tanggal_transaksi' => now(),
+                    'jumlah_digunakan' => $resep->jumlah * $detailTransaksi->jumlah_produk
+                ]);
+
+                // Update BahanBaku total_digunakan
+                $bahanBaku->increment('total_digunakan', $resep->jumlah * $detailTransaksi->jumlah_produk);
+            }
+        }
     }
+
+    // Redirect to show_pesanan_diproses route
+    return redirect()->route('show_pesanan_diproses');
+}
+
 
     
 }

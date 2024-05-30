@@ -189,6 +189,79 @@ User::factory()->create([
     'gender' => 'male',
 ]);
 
+
+ BahanBaku::insert([
+            [
+                'nama_bahan_baku' => 'Gula Pasir',
+                'stok_bahan_baku' => 100,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 12000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Tepung Terigu',
+                'stok_bahan_baku' => 200,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 9000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Susu Bubuk',
+                'stok_bahan_baku' => 150,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 70000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Mentega',
+                'stok_bahan_baku' => 75,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 50000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Telur Ayam',
+                'stok_bahan_baku' => 300,
+                'satuan_bahan_baku' => 'butir',
+                'harga_bahan_baku' => 2000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Cokelat Bubuk',
+                'stok_bahan_baku' => 50,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 45000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Keju Cheddar',
+                'stok_bahan_baku' => 100,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 65000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Ragi Instan',
+                'stok_bahan_baku' => 20,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 80000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Garam',
+                'stok_bahan_baku' => 100,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 5000,
+                'total_digunakan' => 0,
+            ],
+            [
+                'nama_bahan_baku' => 'Vanili',
+                'stok_bahan_baku' => 30,
+                'satuan_bahan_baku' => 'kg',
+                'harga_bahan_baku' => 150000,
+                'total_digunakan' => 0,
+            ],
+        ]);
 // $produks = [
 //     [
 //         'nama' => 'Produk 1',

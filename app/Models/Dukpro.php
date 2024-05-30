@@ -39,4 +39,9 @@ class Dukpro extends Model
         return $this->belongToMany(Hampers::class);
     }
 
+    public function resep()
+    {
+        return $this->hasMany(Resep::class);
+    }
+
 }

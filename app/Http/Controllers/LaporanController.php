@@ -47,6 +47,10 @@ public function show_chart_penjualan_bulanan() {
 }
 
 
+public function show_laporan_penggunaan_bahanbaku(){
+    
+        return view('ownerandmo.penggunaanBahanbakuLaporan');
+}
 
 
 
