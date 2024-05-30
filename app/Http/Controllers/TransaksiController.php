@@ -7,6 +7,7 @@ use App\Models\Hampers;
 use App\Models\BahanBaku;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use App\Models\HampersDetail;
 use App\Models\BahanBakuUsage;
 use App\Http\Controllers\Controller;
 
@@ -126,57 +127,82 @@ class TransaksiController extends Controller
 
 public function pesanan_siap_dikirim_dipickup($id)
 {
-    // Find the transaction
-    $transaksi = Transaksi::with('detailTransaksis.produk.resep', 'detailTransaksis.hampers.details.dukpro.resep')->findOrFail($id);
+    // Find the transaction and ensure it exists
+    $transaksi = Transaksi::findOrFail($id);
 
-    // Loop through each detailTransaksi
-    foreach ($transaksi->detailTransaksis as $detailTransaksi) {
+    // Retrieve all detail transactions related to the transaction
+    $detailTransaksis = $transaksi->detailTransaksis;
+
+    foreach ($detailTransaksis as $detailTransaksi) {
+        // Check if the detail transaction is a hamper
         if ($detailTransaksi->is_hampers) {
-            // Handle hampers
-            $hampers = $detailTransaksi->hampers;
+            // Get the hampers details associated with this hamper
+            $hampersDetails = HampersDetail::where('hampers_id', $detailTransaksi->produk_id)->get();
 
-            foreach ($hampers->details as $hampersDetail) {
-                $produk = $hampersDetail->dukpro;
-                
-                foreach ($produk->resep as $resep) {
-                    $bahanBaku = $resep->bahanBaku;
-                    
-                    // Create BahanBakuUsage
-                    BahanBakuUsage::create([
-                        'bahan_baku_id' => $bahanBaku->id,
-                        'transaksi_id' => $transaksi->id,
-                        'tanggal_transaksi' => now(),
-                        'jumlah_digunakan' => $resep->jumlah * $detailTransaksi->jumlah_produk
-                    ]);
+            foreach ($hampersDetails as $hampersDetail) {
+                $dukpro = $hampersDetail->dukpro;
 
-                    // Update BahanBaku total_digunakan
-                    $bahanBaku->increment('total_digunakan', $resep->jumlah * $detailTransaksi->jumlah_produk);
+                // Get all recipes related to the product in the hamper
+                $reseps = $dukpro->bahanBakus;
+
+                foreach ($reseps as $resep) {
+                    // Find the related BahanBaku
+                    $bahanBaku = BahanBaku::find($resep->pivot->bahan_baku_id);
+
+                    // Update the total_digunakan attribute and record usage
+                    if ($bahanBaku) {
+                        $jumlahDigunakan = $resep->pivot->jumlah * $detailTransaksi->jumlah_produk;
+                        $bahanBaku->total_digunakan += $jumlahDigunakan;
+                        $bahanBaku->save();
+
+                        // Record the usage in the BahanBakuUsage table
+                        BahanBakuUsage::create([
+                            'bahan_baku_id' => $bahanBaku->id,
+                            'transaksi_id' => $transaksi->id,
+                            'tanggal_transaksi' => $transaksi->tanggal_transaksi,
+                            'jumlah_digunakan' => $jumlahDigunakan,
+                        ]);
+                    }
                 }
             }
         } else {
-            // Handle regular products
+            // Get the product related to the detail transaction
             $produk = $detailTransaksi->produk;
 
-            foreach ($produk->resep as $resep) {
-                $bahanBaku = $resep->bahanBaku;
+            // Get all recipes related to the product
+            $reseps = $produk->bahanBakus;
 
-                // Create BahanBakuUsage
-                BahanBakuUsage::create([
-                    'bahan_baku_id' => $bahanBaku->id,
-                    'transaksi_id' => $transaksi->id,
-                    'tanggal_transaksi' => now(),
-                    'jumlah_digunakan' => $resep->jumlah * $detailTransaksi->jumlah_produk
-                ]);
+            foreach ($reseps as $resep) {
+                // Find the related BahanBaku
+                $bahanBaku = BahanBaku::find($resep->pivot->bahan_baku_id);
 
-                // Update BahanBaku total_digunakan
-                $bahanBaku->increment('total_digunakan', $resep->jumlah * $detailTransaksi->jumlah_produk);
+                // Update the total_digunakan attribute and record usage
+                if ($bahanBaku) {
+                    $jumlahDigunakan = $resep->pivot->jumlah * $detailTransaksi->jumlah_produk;
+                    $bahanBaku->total_digunakan += $jumlahDigunakan;
+                    $bahanBaku->save();
+
+                    // Record the usage in the BahanBakuUsage table
+                    BahanBakuUsage::create([
+                        'bahan_baku_id' => $bahanBaku->id,
+                        'transaksi_id' => $transaksi->id,
+                        'tanggal_transaksi' => $transaksi->tanggal_transaksi,
+                        'jumlah_digunakan' => $jumlahDigunakan,
+                    ]);
+                }
             }
         }
     }
 
-    // Redirect to show_pesanan_diproses route
+    // Update the transaction status
+    $transaksi->status_transaksi = 'sudah dikonfirmasi';
+    $transaksi->save();
+
+    // Redirect to the 'show_pesanan_diproses' route
     return redirect()->route('show_pesanan_diproses');
 }
+
+
 
 
     
