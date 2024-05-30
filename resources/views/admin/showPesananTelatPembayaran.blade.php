@@ -1,193 +1,194 @@
 @extends('NavbarAdmin')
-
 @section('content')
-    <!-- Include Bootstrap CSS and JS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <div class="container">
-        <h2>Daftar Pesanan yang Sudah Telat Pembayaran</h2>
-
-        @foreach ($transaksis as $transaksi)
-            <div class="order-card">
-                <div class="store-info">
-                    <span class="store-name">No Pesanan : {{ $transaksi->no_transaksi }}</span>
-                    {{-- Link ke detail toko --}}
-                </div>
-
-                @foreach ($transaksi->detailTransaksis as $detail)
-                    <div class="order-details">
-                        <img src="../image/{{ $detail->produk->image }}" alt="image" class="product-image">
-                        <div class="product-info">
-                            <p class="product-name">{{ $detail->produk->nama }}</p>
-                            {{-- Jumlah produk dalam transaksi --}}
-                            <p class="order-quantity">x{{ $detail->jumlah_produk }}</p>
-                            {{-- Status transaksi --}}
-                            <span class="status">Telat Pembayaran</span>
-                        </div>
-                        <div class="order-pricing">
-                            {{-- Harga produk --}}
-                            <p class="discounted-price">Rp{{ $detail->produk->harga }}</p>
-                        </div>
-                    </div>
-                    <hr>
-                @endforeach
-
-                <div class="order-actions">
-                    {{-- Total harga transaksi --}}
-                    <p class="total-price">Biaya Ongkir: Rp{{ $transaksi->biaya_ongkir }}</p>
-                    <p class="total-price">Total Harga: Rp{{ $transaksi->total_harga + $transaksi->biaya_ongkir }}</p>
-                    {{-- Tombol aksi --}}
-                    <button type="button" class="btn btn-primary ready-to-ship-btn" data-id="{{ $transaksi->id }}">Batalkan
-                        Pesanan</button>
-                </div>
-            </div>
-        @endforeach
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Apakah Anda yakin membatalkan pesanan ini?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Form for PATCH request -->
-    <form id="readyToShipForm" method="POST" style="display: none;">
-        @csrf
-        @method('PATCH')
-    </form>
-
     <style>
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #EEEEEE;
         }
 
-        .order-card {
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
+        table {
+            width: 90%;
+            margin: 11px auto;
+        }
+
+        th,
+        td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) {
+            background-color: #FEECE2;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #F7DED0;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-right: 10%;
+            position: relative;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
             background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .dropdown button:hover {
+            background-color: #858484;
             border-radius: 10px;
         }
 
-        .store-info {
+        .btn-search {
+            background-color: #FFBE98;
+            padding: 5px 15px;
+            border-radius: 10px;
+        }
+
+        .btn-search:hover {
+            background-color: #000000;
+            padding: 5px 15px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .icon-table {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .store-name {
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .order-details {
-            display: flex;
-            margin-top: 20px;
-        }
-
-        .product-image {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            margin-right: 20px;
-        }
-
-        .product-info {
-            flex: 1;
-        }
-
-        .product-name {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .order-quantity {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .order-status {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            margin-left: 20px;
-        }
-
-        .status {
-            font-size: 14px;
-            color: green;
-        }
-
-        .order-pricing {
-            text-align: right;
-        }
-
-        .discounted-price {
-            font-weight: bold;
-            color: #d9534f;
-        }
-
-        .total-price {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .order-actions {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: flex-end;
-            margin-top: 20px;
-        }
-
-        .order-actions p {
-            margin-right: 10px;
+            justify-content: center;
+            margin-bottom: 40px;
+            margin-top: 10px;
         }
     </style>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let selectedOrderId;
+    <body>
+        @if (session('success'))
+            <div class="alert alert-success" role="alert">
+                {{ session('success') }}
+            </div>
+        @endif
 
-            document.querySelectorAll('.ready-to-ship-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    selectedOrderId = this.getAttribute('data-id');
-                    $('#confirmModal').modal('show');
-                });
-            });
+        @if (session('error'))
+            <div class="alert alert-danger" role="alert">
+                {{ session('error') }}
+            </div>
+        @endif
+        <main>
+            <div class="row" style="margin-left: 80px; margin-top: 80px">
+                <div class="col-6 title">
+                    <h1 style="font-weight: 800">Telat Pembayaran</h1>
+                    <p style="font-size: 25px; font-weight: 200;">Hi Admin, Welcome in Dashboard!</p>
 
-            document.getElementById('confirmYes').addEventListener('click', function() {
-                if (selectedOrderId) {
-                    const form = document.getElementById('readyToShipForm');
-                    form.action = `/pesanan_siap_dikirim_dipickup/${selectedOrderId}`;
-                    form.submit();
-                }
-            });
+                </div>
+                <div class="col-6">
+                    <div class="profile">
+                        <img src="image/pictureProfile.png" alt="" width="80px">
+                        <p style="padding-top: 10px">Admin</p>
+                        <div class="dropdown" id="dropdownMenu" style="border-radius: 10px;;">
+                            <button onclick="toggleDropdown()">Profile</button>
+                            <button onclick="logout()">Logout</button>
+                        </div>
+                        <img id="arrowIcon" src="image/iconArrowBottom.png" alt="" width="20px"
+                            style=" margin-left: 5px; cursor: pointer" onclick="toggleDropdown()">
+                    </div>
+                </div>
+            </div>
 
-            // Make sure the modal can be closed properly
-            $('#confirmModal').on('hidden.bs.modal', function() {
-                selectedOrderId = null;
-            });
-        });
-    </script>
+            <div class="row" style="margin-left: 80px; margin-top: 40px;">
+                <div class="col-6">
+
+                </div>
+                <div class="col-6">
+                    <div style="justify-content: flex-end; display: flex; margin-right: 10%;">
+                        <a href="" style="margin-right: 10px; color: #000000; font-weight: 500;">Search</a>
+                        <form action="" method="GET">
+                            <input style="border-radius: 22px; padding-left: 10px;" type="search" name="search">
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <tr style="background-color: #E2BFB3; height: 80px;">
+                    <th>NO</th>
+                    <th>PEMBELI</th>
+                    <th>NO TRANSAKSI</th>
+                    <th>ALAMAT PENGANTARAN</th>
+                    <th>WAKTU TELAT</th>
+                    <th>STATUS</th>
+                    <th>ACTION</th>
+                </tr>
+
+                @foreach ($transaksis as $index => $transaksi)
+                    @php
+                        $now = \Carbon\Carbon::now();
+                        $created = \Carbon\Carbon::parse($transaksi->created_at);
+                        $diffInHours = $created->diffInHours($now);
+                        $days = intdiv($diffInHours, 24);
+                        $hours = $diffInHours % 24;
+                    @endphp
+                    <tr style="height: 60px;">
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $transaksi->user->name }}</td>
+                        <td>{{ $transaksi->no_transaksi }}</td>
+                        <td>{{ $transaksi->alamat_pengantaran }}</td>
+                        <td>
+                            <p>{{ $days }} hari {{ $hours }} jam</p>
+                        </td>
+                        <td style="color: #f91313">{{ $transaksi->status_transaksi }}</td>
+                        <td>
+                            <form action="{{ route('batalkan_pesanan_telat_bayar', $transaksi->id) }}" method="POST">
+                                @method('patch')
+                                @csrf
+                                <button type="submit" class="btn-search">Batalkan</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+
+
+
+            <div class="icon-table">
+                <a href="" style="margin-right: 80%"><img src="image/icon_left_double.png" width="23px"
+                        alt=""></a>
+                <a href=""><img src="image/icon_right_double.png" width="23px" alt=""></a>
+            </div>
+        </main>
+
+        <script>
+            function toggleDropdown() {
+                var dropdown = document.getElementById('dropdownMenu');
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+
+                var arrowIcon = document.getElementById('arrowIcon');
+                arrowIcon.classList.toggle('rotate');
+            }
+
+            function logout() {
+                alert('Logout clicked');
+            }
+        </script>
+
+    </body>
 @endsection

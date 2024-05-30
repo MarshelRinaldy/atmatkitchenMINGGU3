@@ -118,8 +118,6 @@
                                         <td> Rp.{{ number_format($detail->produk->harga, 2, ',', '.') }}</td>
                                     @endif
 
-
-
                                     <td>{{ $detail->jumlah_produk }}</td>
 
                                     <?php

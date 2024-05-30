@@ -211,6 +211,18 @@
         .tab-content.active {
             display: block;
         }
+
+        .btn-custom {
+            width: 200px;
+            height: 50px;
+            background-color: #ff9d2e;
+            color: white
+        }
+
+        .btn-custom:hover {
+            background-color: #000000;
+            color: white
+        }
     </style>
 </head>
 
@@ -231,29 +243,64 @@
             <h2 class="card-title mb-5">Produk yang siap dibayar</h2>
             @foreach ($transaksis as $transaksi)
                 @if ($transaksi->status_transaksi == 'menunggu pembayaran')
-                    <div class="transaksi">
-                        <div class="card-body">
-                            <h5 class="card-title">No Pesanan : {{ $transaksi->no_transaksi }}</h5>
-                            <div class="custom-img-container">
-                                @foreach ($transaksi->detailTransaksis as $detail)
-                                    <div class="custom-img-item">
-                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
-                                            alt="{{ $detail->produk->nama }}" class="img-fluid">
-                                        <div>{{ $detail->produk->nama }}</div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="transaksi">
+                                <h5 class="card-title ml-5">No Transaksi : {{ $transaksi->no_transaksi }}</h5>
+                                <hr>
+                                <div class="row mr-5">
+                                    @foreach ($transaksi->detailTransaksis as $detail)
+                                        <div class="col-10 mb-5">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    @if ($detail->is_hampers)
+                                                        <img src="{{ asset('../storage/hampers/' . $detail->hampers->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @else
+                                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @endif
+
+                                                </div>
+                                                <div class="col-6">
+                                                    @if ($detail->is_hampers)
+                                                        <h2>{{ $detail->hampers->nama }}</h2>
+                                                    @else
+                                                        <h2>{{ $detail->produk->nama }}</h2>
+                                                    @endif
+
+                                                    @if ($detail->is_hampers)
+                                                        <h5>{{ truncateDescription($detail->hampers->deskripsi) }}</h5>
+                                                    @else
+                                                        <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @endif
+
+                                                    <p>Quantity : {{ $detail->jumlah_produk }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mt-5 d-flex justify-content-end">
+                                            @if ($detail->is_hampers)
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->hampers->harga }},00</p>
+                                            @else
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->produk->harga }},00</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-9"></div>
+                                    <div class="col-3">
+                                        <h5>Biaya Ongkir : {{ $transaksi->biaya_ongkir }}</h5>
+                                        <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
-                            <div>
-                                <span class="card-text"><strong>Total:
-                                        Rp{{ number_format($transaksi->total_harga, 2, ',', '.') }}</strong></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <form action="{{ route('payment_pesanan', $transaksi->id) }}" method="GET">
-                                <button class="btn btn-primary btn-sm">Payment</button>
-                            </form>
-                            <span
-                                class="transaction-date">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</span>
                         </div>
                     </div>
                 @endif
@@ -285,20 +332,42 @@
                                         <div class="col-10 mb-5">
                                             <div class="row">
                                                 <div class="col-3">
-                                                    <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
-                                                        alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
-                                                        width="150px;">
+                                                    @if ($detail->is_hampers)
+                                                        <img src="{{ asset('../storage/hampers/' . $detail->hampers->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @else
+                                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @endif
+
                                                 </div>
                                                 <div class="col-6">
-                                                    <h2>{{ $detail->produk->nama }}</h2>
-                                                    <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @if ($detail->is_hampers)
+                                                        <h2>{{ $detail->hampers->nama }}</h2>
+                                                    @else
+                                                        <h2>{{ $detail->produk->nama }}</h2>
+                                                    @endif
+
+                                                    @if ($detail->is_hampers)
+                                                        <h5>{{ truncateDescription($detail->hampers->deskripsi) }}</h5>
+                                                    @else
+                                                        <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @endif
+
                                                     <p>Quantity : {{ $detail->jumlah_produk }}</p>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-2 mt-5 d-flex justify-content-end">
-                                            <p style="font-size: 20px; font-weight: 600;">Rp.
-                                                {{ $detail->produk->harga }},00</p>
+                                            @if ($detail->is_hampers)
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->hampers->harga }},00</p>
+                                            @else
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->produk->harga }},00</p>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -306,6 +375,7 @@
                                 <div class="row">
                                     <div class="col-9"></div>
                                     <div class="col-3">
+                                        <h5>Biaya Ongkir : {{ $transaksi->biaya_ongkir }}</h5>
                                         <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
                                     </div>
                                 </div>
@@ -319,7 +389,7 @@
 
 
         <div id="diproses" class="tab-content">
-            <h1 class="card-title text-center mb-5 mt-2">Menunggu Konfirmasi Pembayaran</h1>
+            <h1 class="card-title text-center mb-5 mt-2">Produk yang sedang dikemas</h1>
             @foreach ($transaksis as $transaksi)
                 @if ($transaksi->status_transaksi == 'sedang dikemas')
                     <div class="row">
@@ -332,20 +402,42 @@
                                         <div class="col-10 mb-5">
                                             <div class="row">
                                                 <div class="col-3">
-                                                    <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
-                                                        alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
-                                                        width="150px;">
+                                                    @if ($detail->is_hampers)
+                                                        <img src="{{ asset('../storage/hampers/' . $detail->hampers->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @else
+                                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @endif
+
                                                 </div>
                                                 <div class="col-6">
-                                                    <h2>{{ $detail->produk->nama }}</h2>
-                                                    <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @if ($detail->is_hampers)
+                                                        <h2>{{ $detail->hampers->nama }}</h2>
+                                                    @else
+                                                        <h2>{{ $detail->produk->nama }}</h2>
+                                                    @endif
+
+                                                    @if ($detail->is_hampers)
+                                                        <h5>{{ truncateDescription($detail->hampers->deskripsi) }}</h5>
+                                                    @else
+                                                        <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @endif
+
                                                     <p>Quantity : {{ $detail->jumlah_produk }}</p>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-2 mt-5 d-flex justify-content-end">
-                                            <p style="font-size: 20px; font-weight: 600;">Rp.
-                                                {{ $detail->produk->harga }},00</p>
+                                            @if ($detail->is_hampers)
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->hampers->harga }},00</p>
+                                            @else
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->produk->harga }},00</p>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -353,6 +445,7 @@
                                 <div class="row">
                                     <div class="col-9"></div>
                                     <div class="col-3">
+                                        <h5>Biaya Ongkir : {{ $transaksi->biaya_ongkir }}</h5>
                                         <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
                                     </div>
                                 </div>
@@ -392,8 +485,85 @@
             @endforeach
         </div> --}}
 
+
         <div id="dikirim" class="tab-content">
-            <h2 class="card-title mb-5">Produk yang dikirim / Sudah bisa di pickup</h2>
+            <h1 class="card-title text-center mb-5 mt-2">Produk yang sedang dikirim / Sudah bisa di pickup</h1>
+            @foreach ($transaksis as $transaksi)
+                @if ($transaksi->status_transaksi == 'sudah dikonfirmasi')
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="transaksi">
+                                <h5 class="card-title ml-5">No Transaksi : {{ $transaksi->no_transaksi }}</h5>
+                                <hr>
+                                <div class="row mr-5">
+                                    @foreach ($transaksi->detailTransaksis as $detail)
+                                        <div class="col-10 mb-5">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    @if ($detail->is_hampers)
+                                                        <img src="{{ asset('../storage/hampers/' . $detail->hampers->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @else
+                                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @endif
+
+                                                </div>
+                                                <div class="col-6">
+                                                    @if ($detail->is_hampers)
+                                                        <h2>{{ $detail->hampers->nama }}</h2>
+                                                    @else
+                                                        <h2>{{ $detail->produk->nama }}</h2>
+                                                    @endif
+
+                                                    @if ($detail->is_hampers)
+                                                        <h5>{{ truncateDescription($detail->hampers->deskripsi) }}</h5>
+                                                    @else
+                                                        <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @endif
+
+                                                    <p>Quantity : {{ $detail->jumlah_produk }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mt-5 d-flex justify-content-end">
+                                            @if ($detail->is_hampers)
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->hampers->harga }},00</p>
+                                            @else
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->produk->harga }},00</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-9"></div>
+                                    <div class="col-3">
+                                        <h5>Biaya Ongkir : {{ $transaksi->biaya_ongkir }}</h5>
+                                        <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-center">
+                                    <button id="selesai-button-{{ $transaksi->id }}"
+                                        class="btn btn-custom btn-sm selesai-button"
+                                        data-id="{{ $transaksi->id }}">Selesai</button>
+                                    <span
+                                        class="transaction-date">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        </div>
+
+
+        {{-- <div id="dikirim" class="tab-content">
+            <h2 class="card-title mb-5">Produk yang sedang dikirim / Sudah bisa di pickup</h2>
             @foreach ($transaksis as $transaksi)
                 @if ($transaksi->status_transaksi == 'sudah dikonfirmasi')
                     <div class="transaksi">
@@ -423,7 +593,7 @@
                     </div>
                 @endif
             @endforeach
-        </div>
+        </div> --}}
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -477,39 +647,143 @@
             <h2 class="card-title mb-5">Produk yang selesai</h2>
             @foreach ($transaksis as $transaksi)
                 @if ($transaksi->status_transaksi == 'selesai')
-                    <div class="transaksi">
-                        <div class="card-body">
-                            <h5 class="card-title">Transaksi {{ $loop->iteration }}</h5>
-                            <div class="custom-img-container">
-                                @foreach ($transaksi->detailTransaksis as $detail)
-                                    <div class="custom-img-item">
-                                        <img src="{{ $detail->produk->image }}" alt="{{ $detail->produk->nama }}"
-                                            class="img-fluid">
-                                        <div>{{ $detail->produk->nama }}</div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="transaksi">
+                                <h5 class="card-title ml-5">No Transaksi : {{ $transaksi->no_transaksi }}</h5>
+                                <hr>
+                                <div class="row mr-5">
+                                    @foreach ($transaksi->detailTransaksis as $detail)
+                                        <div class="col-10 mb-5">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    @if ($detail->is_hampers)
+                                                        <img src="{{ asset('../storage/hampers/' . $detail->hampers->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @else
+                                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @endif
+
+                                                </div>
+                                                <div class="col-6">
+                                                    @if ($detail->is_hampers)
+                                                        <h2>{{ $detail->hampers->nama }}</h2>
+                                                    @else
+                                                        <h2>{{ $detail->produk->nama }}</h2>
+                                                    @endif
+
+                                                    @if ($detail->is_hampers)
+                                                        <h5>{{ truncateDescription($detail->hampers->deskripsi) }}</h5>
+                                                    @else
+                                                        <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @endif
+
+                                                    <p>Quantity : {{ $detail->jumlah_produk }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mt-5 d-flex justify-content-end">
+                                            @if ($detail->is_hampers)
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->hampers->harga }},00</p>
+                                            @else
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->produk->harga }},00</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-9"></div>
+                                    <div class="col-3">
+                                        <h5>Biaya Ongkir : {{ $transaksi->biaya_ongkir }}</h5>
+                                        <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
-                            <div>
-                                <span class="card-text"><strong>Total:
-                                        Rp{{ number_format($transaksi->total_harga, 2, ',', '.') }}</strong></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <form action="{{ route('payment_pesanan', $transaksi->id) }}" method="GET">
-                                <button class="btn btn-primary btn-sm">Payment</button>
-                            </form>
-                            <span
-                                class="transaction-date">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</span>
                         </div>
                     </div>
                 @endif
             @endforeach
         </div>
 
+
+        <div id="dibatalkan" class="tab-content">
+            <h1 class="card-title text-center mb-5 mt-2">Produk yang dibatalkan</h1>
+            @foreach ($transaksis as $transaksi)
+                @if ($transaksi->status_transaksi == 'Dibatalkan')
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="transaksi">
+                                <h5 class="card-title ml-5">No Transaksi : {{ $transaksi->no_transaksi }}</h5>
+                                <hr>
+                                <div class="row mr-5">
+                                    @foreach ($transaksi->detailTransaksis as $detail)
+                                        <div class="col-10 mb-5">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    @if ($detail->is_hampers)
+                                                        <img src="{{ asset('../storage/hampers/' . $detail->hampers->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @else
+                                                        <img src="{{ asset('../storage/dukpro/' . $detail->produk->image) }}"
+                                                            alt="{{ $detail->produk->nama }}" class="img-fluid ml-5"
+                                                            width="150px;">
+                                                    @endif
+
+                                                </div>
+                                                <div class="col-6">
+                                                    @if ($detail->is_hampers)
+                                                        <h2>{{ $detail->hampers->nama }}</h2>
+                                                    @else
+                                                        <h2>{{ $detail->produk->nama }}</h2>
+                                                    @endif
+
+                                                    @if ($detail->is_hampers)
+                                                        <h5>{{ truncateDescription($detail->hampers->deskripsi) }}</h5>
+                                                    @else
+                                                        <h5>{{ truncateDescription($detail->produk->deskripsi) }}</h5>
+                                                    @endif
+
+                                                    <p>Quantity : {{ $detail->jumlah_produk }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mt-5 d-flex justify-content-end">
+                                            @if ($detail->is_hampers)
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->hampers->harga }},00</p>
+                                            @else
+                                                <p style="font-size: 20px; font-weight: 600;">Rp.
+                                                    {{ $detail->produk->harga }},00</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-9"></div>
+                                    <div class="col-3">
+                                        <h5>Biaya Ongkir : {{ $transaksi->biaya_ongkir }}</h5>
+                                        <h4 style="font-weight: 600">Total : {{ $transaksi->total_harga }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        </div>
+        {{-- 
         <div id="dibatalkan" class="tab-content">
             <h2 class="card-title mb-5">Produk yang dibatalkan</h2>
             @foreach ($transaksis as $transaksi)
-                @if ($transaksi->status == 'Dibatalkan')
+                @if ($transaksi->status_transaksi == 'Dibatalkan')
                     <div class="transaksi">
                         <div class="card-body">
                             <h5 class="card-title">Transaksi {{ $loop->iteration }}</h5>
@@ -538,49 +812,49 @@
                 @endif
             @endforeach
         </div>
-    </div>
+    </div> --}}
 
 
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabLinks = document.querySelectorAll('.tab-link');
-            const tabContents = document.querySelectorAll('.tab-content');
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const tabLinks = document.querySelectorAll('.tab-link');
+                const tabContents = document.querySelectorAll('.tab-content');
 
-            tabLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
+                tabLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
 
-                    tabLinks.forEach(link => link.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
+                        tabLinks.forEach(link => link.classList.remove('active'));
+                        tabContents.forEach(content => content.classList.remove('active'));
 
-                    this.classList.add('active');
-                    const tab = this.getAttribute('data-tab');
-                    document.getElementById(tab).classList.add('active');
+                        this.classList.add('active');
+                        const tab = this.getAttribute('data-tab');
+                        document.getElementById(tab).classList.add('active');
+                    });
+                });
+
+                const containers = document.querySelectorAll('.custom-img-container');
+
+                containers.forEach(container => {
+                    const items = container.querySelectorAll('.custom-img-item');
+                    const maxVisibleImages = 3;
+
+                    if (items.length > maxVisibleImages) {
+                        for (let i = maxVisibleImages; i < items.length; i++) {
+                            items[i].style.display = 'none';
+                        }
+
+                        const extraCount = items.length - maxVisibleImages;
+                        const extraImagesDiv = document.createElement('div');
+                        extraImagesDiv.className = 'extra-images';
+                        extraImagesDiv.textContent = '+' + extraCount;
+
+                        container.appendChild(extraImagesDiv);
+                    }
                 });
             });
-
-            const containers = document.querySelectorAll('.custom-img-container');
-
-            containers.forEach(container => {
-                const items = container.querySelectorAll('.custom-img-item');
-                const maxVisibleImages = 3;
-
-                if (items.length > maxVisibleImages) {
-                    for (let i = maxVisibleImages; i < items.length; i++) {
-                        items[i].style.display = 'none';
-                    }
-
-                    const extraCount = items.length - maxVisibleImages;
-                    const extraImagesDiv = document.createElement('div');
-                    extraImagesDiv.className = 'extra-images';
-                    extraImagesDiv.textContent = '+' + extraCount;
-
-                    container.appendChild(extraImagesDiv);
-                }
-            });
-        });
-    </script>
+        </script>
 </body>
 
 </html>

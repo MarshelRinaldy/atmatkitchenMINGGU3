@@ -93,8 +93,38 @@ class TransaksiController extends Controller
                             ->where('created_at', '<', $now->subDay())
                             ->get();
 
-        return view('admin.showPesananDiproses', compact('transaksis'));
+    return view('admin.showPesananTelatPembayaran', compact('transaksis'));
+}
+
+    public function batalkan_pesanan_telat_bayar($id) {
+    // Mengambil objek Transaksi berdasarkan $id
+    $transaksi = Transaksi::findOrFail($id);
+
+    // Mengambil semua detail transaksi yang terkait dengan transaksi tersebut
+    $detailTransaksis = $transaksi->detailTransaksis;
+
+    // Menambah kembali stok produk atau hampers
+    foreach ($detailTransaksis as $detail) {
+        if ($detail->produk && !$detail->is_hampers) {
+            // Menambah kembali stok produk yang bukan bagian dari hampers
+            $produk = $detail->produk;
+            $produk->stok += $detail->jumlah_produk;
+            $produk->save();
+        } elseif ($detail->hampers) {
+            // Menambah kembali stok hampers
+            $hampers = $detail->hampers;
+            $hampers->stok += $detail->jumlah_produk;
+            $hampers->save();
+        }
     }
+
+    // Mengubah status transaksi menjadi 'Dibatalkan'
+    $transaksi->status_transaksi = 'Dibatalkan';
+    $transaksi->save();
+
+    return redirect()->route('show_pesanan_telat_bayar')->with('success', 'Berhasil Membatalkan Transaksi Tersebut');
+}
+
 
     public function pesanan_siap_dikirim_dipickup($id)
     {
@@ -109,6 +139,5 @@ class TransaksiController extends Controller
         return redirect()->route('show_pesanan_diproses');
     }
 
-    
     
 }
