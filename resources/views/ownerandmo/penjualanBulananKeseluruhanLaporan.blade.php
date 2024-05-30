@@ -73,11 +73,46 @@
             color: white;
         }
 
+        .btn-display {
+            background-color: #FFBE98;
+            padding: 5px 15px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+
+        .btn-display:hover {
+            background-color: #000000;
+            color: white;
+        }
+
+        .btn-print {
+            background-color: #FFBE98;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #000;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-print:hover {
+            background-color: #000000;
+            color: white;
+        }
+
         .icon-table {
             display: flex;
             justify-content: center;
             margin-bottom: 40px;
             margin-top: 10px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-left: 80px;
+            margin-top: 20px;
+            max-width: 350px;
+            gap: 20px;
         }
     </style>
 
@@ -96,14 +131,14 @@
         <main>
             <div class="row" style="margin-left: 80px; margin-top: 80px">
                 <div class="col-6 title">
-                    <h1 style="font-weight: 800">Telat Pembayaran</h1>
-                    <p style="font-size: 25px; font-weight: 200;">Hi Admin, Welcome in Dashboard!</p>
+                    <h1 style="font-weight: 800">Laporan Penjualan</h1>
+                    <p style="font-size: 25px; font-weight: 200;">Hi Owner or MO, Welcome in Dashboard!</p>
                 </div>
                 <div class="col-6">
                     <div class="profile">
                         <img src="image/pictureProfile.png" alt="" width="80px">
                         <p style="padding-top: 10px">Admin</p>
-                        <div class="dropdown" id="dropdownMenu" style="border-radius: 10px;;">
+                        <div class="dropdown" id="dropdownMenu" style="border-radius: 10px;">
                             <button onclick="toggleDropdown()">Profile</button>
                             <button onclick="logout()">Logout</button>
                         </div>
@@ -115,7 +150,17 @@
 
             <div class="row" style="margin-left: 80px; margin-top: 40px;">
                 <div class="col-6">
-
+                    <div>
+                        <h3>Periode Tanggal <span id="startDateDisplay">.....</span> s/d <span
+                                id="endDateDisplay">.....</span></h3>
+                    </div>
+                    <form action="" method="GET" style="display: flex; align-items: center;">
+                        <input type="date" id="startDate" name="start_date"
+                            style="border-radius: 22px; padding-left: 10px; margin-right: 10px;">
+                        <input type="date" id="endDate" name="end_date"
+                            style="border-radius: 22px; padding-left: 10px;">
+                        <button type="submit" class="btn-display">Tampilkan</button>
+                    </form>
                 </div>
                 <div class="col-6">
                     <div style="justify-content: flex-end; display: flex; margin-right: 10%;">
@@ -129,47 +174,39 @@
 
             <table>
                 <tr style="background-color: #E2BFB3; height: 80px;">
-                    <th>NO</th>
-                    <th>PEMBELI</th>
-                    <th>NO TRANSAKSI</th>
-                    <th>ALAMAT PENGANTARAN</th>
-                    <th>WAKTU TELAT</th>
-                    <th>STATUS</th>
-                    <th>ACTION</th>
+                    <th>Bulan</th>
+                    <th>Jumlah Transaksi</th>
+                    <th>Tip</th>
+                    <th>Jumlah Uang</th>
                 </tr>
-
-                @foreach ($transaksis as $index => $transaksi)
-                    @php
-                        $now = \Carbon\Carbon::now();
-                        $created = \Carbon\Carbon::parse($transaksi->created_at);
-                        $diffInHours = $created->diffInHours($now);
-                        $days = intdiv($diffInHours, 24);
-                        $hours = $diffInHours % 24;
-                    @endphp
+                @foreach ($data as $item)
                     <tr style="height: 60px;">
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $transaksi->user->name }}</td>
-                        <td>{{ $transaksi->no_transaksi }}</td>
-                        <td>{{ $transaksi->alamat_pengantaran }}</td>
-                        <td>
-                            <p>{{ $days }} hari {{ $hours }} jam</p>
-                        </td>
-                        <td style="color: #f91313">{{ $transaksi->status_transaksi }}</td>
-                        <td>
-                            <form action="{{ route('batalkan_pesanan_telat_bayar', $transaksi->id) }}" method="POST">
-                                @method('patch')
-                                @csrf
-                                <button type="submit" class="btn-search">Batalkan</button>
-                            </form>
-                        </td>
+                        <td>{{ DateTime::createFromFormat('!m', $item->bulan)->format('F') }}</td>
+                        <td>{{ $item->jumlah_transaksi }}</td>
+                        <td>{{ number_format($item->total_tip, 2) }}</td>
+                        <td>{{ number_format($item->jumlah_uang, 2) }}</td>
                     </tr>
                 @endforeach
+                <tr style="background-color: #E2BFB3; height: 60px;">
+                    <td colspan="2" style="font-weight: bold;">Total</td>
+                    <td style="font-weight: bold;">
+                        {{ number_format(collect($data)->sum('total_tip'), 2) }}
+                    </td>
+                    <td style="font-weight: bold;">
+                        {{ number_format(collect($data)->sum('jumlah_uang'), 2) }}
+                    </td>
+                </tr>
             </table>
 
             <div class="icon-table">
                 <a href="" style="margin-right: 80%"><img src="image/icon_left_double.png" width="23px"
                         alt=""></a>
                 <a href=""><img src="image/icon_right_double.png" width="23px" alt=""></a>
+            </div>
+
+            <div class="btn-container mb-4">
+                <a href="{{ route('chart_penjualan_bulanan') }}" class="btn-print">Show Chart</a>
+                <a href="#" class="btn-print">Cetak Laporan</a>
             </div>
         </main>
 
@@ -185,7 +222,14 @@
             function logout() {
                 alert('Logout clicked');
             }
-        </script>
 
+            document.getElementById('startDate').addEventListener('change', function() {
+                document.getElementById('startDateDisplay').textContent = this.value;
+            });
+
+            document.getElementById('endDate').addEventListener('change', function() {
+                document.getElementById('endDateDisplay').textContent = this.value;
+            });
+        </script>
     </body>
 @endsection

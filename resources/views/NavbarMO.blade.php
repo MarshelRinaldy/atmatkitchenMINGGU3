@@ -247,14 +247,8 @@
                         {{-- <li class="sidebar-item">
                             <a href="{{ route('show_pengiriman') }}" class="sidebar-link">Pengiriman</a>
                         </li> --}}
-                        <li class="sidebar-item">
-                            <a href="{{ route('mo.show_konfirmasi_pesanan') }}" class="sidebar-link">Konfirmasi
-                                Pesanan</a>
-                        </li>
                     </ul>
                 </li>
-
-
 
                 {{-- <li class="sidebar-item">
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
@@ -322,6 +316,19 @@
                     </a>
                 </li>
 
+                <li class="sidebar-item">
+                    <a href="{{ route('show_laporan_penjualan_keseluruhan') }}" class="sidebar-link">
+                        <i class="lni lni-agenda"></i>
+                        <span>Laporan Penjualan Keseluruhan</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="" class="sidebar-link">
+                        <i class="lni lni-agenda"></i>
+                        <span>Laporan Penggunaan BahanBaku</span>
+                    </a>
+                </li>
 
                 {{-- <li class="sidebar-item">
                     <a href="#" class="sidebar-link">

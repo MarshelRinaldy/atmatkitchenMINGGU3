@@ -23,6 +23,7 @@ use App\Http\Controllers\PemasukanPerusahaanController;
 use App\Http\Controllers\pencatatanBBController;
 use App\Http\Controllers\pencatatanPengeluaranLainController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\LaporanController as OwnerMoLaporanController;
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +34,7 @@ use App\Http\Middleware\CheckRole;
 
 use App\Models\Customer;
 use App\Models\BahanBaku;
+
 
 
 
@@ -144,6 +146,11 @@ Route::get('/show_payment_pesanan_list', [CustomerController::class, 'show_payme
 Route::get('/payment_pesanan/{id}', [CustomerController::class, 'payment_pesanan'])->name('payment_pesanan');
 Route::patch('/store/bukti_pembayaran/{id}', [CustomerController::class, 'store_bukti_pembayaran'])->name('store_bukti_pembayaran');
 Route::patch('/pesanan_selesai/{id}', [CustomerController::class, 'pesanan_selesai'])->name('pesanan_selesai');
+
+
+//INI UNTUK LAPORAN OWNER DAN MO (MACE)
+Route::get('/show_laporan_penjualan_keseluruhan', [OwnerMoLaporanController::class, 'show_laporan_penjualan_keseluruhan'])->name('show_laporan_penjualan_keseluruhan');
+Route::get('/chart-penjualan-bulanan', [OwnerMoLaporanController::class, 'show_chart_penjualan_bulanan'])->name('chart_penjualan_bulanan');
 
 // INI UNTUK ADMIN SAJA
 Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
