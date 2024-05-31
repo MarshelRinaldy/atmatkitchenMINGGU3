@@ -142,8 +142,40 @@ public function pesanan_siap_dikirim_dipickup($id)
             foreach ($hampersDetails as $hampersDetail) {
                 $dukpro = $hampersDetail->dukpro;
 
-                // Get all recipes related to the product in the hamper
-                $reseps = $dukpro->bahanBakus;
+                // Only proceed if the dukpro status is 'Preorder'
+                if ($dukpro->status === 'Preorder') {
+                    // Get all recipes related to the product in the hamper
+                    $reseps = $dukpro->bahanBakus;
+
+                    foreach ($reseps as $resep) {
+                        // Find the related BahanBaku
+                        $bahanBaku = BahanBaku::find($resep->pivot->bahan_baku_id);
+
+                        // Update the total_digunakan attribute and record usage
+                        if ($bahanBaku) {
+                            $jumlahDigunakan = $resep->pivot->jumlah * $detailTransaksi->jumlah_produk;
+                            $bahanBaku->total_digunakan += $jumlahDigunakan;
+                            $bahanBaku->save();
+
+                            // Record the usage in the BahanBakuUsage table
+                            BahanBakuUsage::create([
+                                'bahan_baku_id' => $bahanBaku->id,
+                                'transaksi_id' => $transaksi->id,
+                                'tanggal_transaksi' => $transaksi->tanggal_transaksi,
+                                'jumlah_digunakan' => $jumlahDigunakan,
+                            ]);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Get the product related to the detail transaction
+            $produk = $detailTransaksi->produk;
+
+            // Only proceed if the product status is 'Preorder'
+            if ($produk->status === 'Preorder') {
+                // Get all recipes related to the product
+                $reseps = $produk->bahanBakus;
 
                 foreach ($reseps as $resep) {
                     // Find the related BahanBaku
@@ -165,32 +197,6 @@ public function pesanan_siap_dikirim_dipickup($id)
                     }
                 }
             }
-        } else {
-            // Get the product related to the detail transaction
-            $produk = $detailTransaksi->produk;
-
-            // Get all recipes related to the product
-            $reseps = $produk->bahanBakus;
-
-            foreach ($reseps as $resep) {
-                // Find the related BahanBaku
-                $bahanBaku = BahanBaku::find($resep->pivot->bahan_baku_id);
-
-                // Update the total_digunakan attribute and record usage
-                if ($bahanBaku) {
-                    $jumlahDigunakan = $resep->pivot->jumlah * $detailTransaksi->jumlah_produk;
-                    $bahanBaku->total_digunakan += $jumlahDigunakan;
-                    $bahanBaku->save();
-
-                    // Record the usage in the BahanBakuUsage table
-                    BahanBakuUsage::create([
-                        'bahan_baku_id' => $bahanBaku->id,
-                        'transaksi_id' => $transaksi->id,
-                        'tanggal_transaksi' => $transaksi->tanggal_transaksi,
-                        'jumlah_digunakan' => $jumlahDigunakan,
-                    ]);
-                }
-            }
         }
     }
 
@@ -201,9 +207,6 @@ public function pesanan_siap_dikirim_dipickup($id)
     // Redirect to the 'show_pesanan_diproses' route
     return redirect()->route('show_pesanan_diproses');
 }
-
-
-
 
     
 }

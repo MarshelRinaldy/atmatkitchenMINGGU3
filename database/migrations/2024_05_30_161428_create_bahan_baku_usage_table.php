@@ -11,7 +11,7 @@ class CreateBahanBakuUsageTable extends Migration
         Schema::create('bahan_baku_usage', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bahan_baku_id')->constrained('bahan_baku')->onDelete('cascade');
-            $table->foreignId('transaksi_id')->constrained('transaksis')->onDelete('cascade');
+            $table->foreignId('transaksi_id')->nullable()->constrained('transaksis')->onDelete('cascade');
             $table->date('tanggal_transaksi');
             $table->integer('jumlah_digunakan')->default(0);
             $table->timestamps();
@@ -23,4 +23,5 @@ class CreateBahanBakuUsageTable extends Migration
         Schema::dropIfExists('bahan_baku_usage');
     }
 }
+
 

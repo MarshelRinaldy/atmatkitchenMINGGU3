@@ -177,15 +177,17 @@
 
                     <th>Nama Bahan</th>
                     <th>Satuan</th>
-                    <th>Jumlah Uang</th>
+                    <th>Jumlah Penggunaan</th>
                 </tr>
 
-                <tr style="height: 60px;">
+                @for ($i = 0; $i < 5; $i++)
+                    <tr style="height: 60px;">
+                        <td>Susu Cair</td>
+                        <td>Gram</td>
+                        <td>100</td>
+                    </tr>
+                @endfor
 
-                    <td>Susu Cair</td>
-                    <td>Gram</td>
-                    <td>100</td>
-                </tr>
 
 
             </table>
