@@ -118,16 +118,12 @@
 
     <body>
         @if (session('success'))
-            <div class="alert alert-success" role="alert">
-                {{ session('success') }}
-            </div>
+            <div class="alert alert-success" role="alert">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
         @endif
 
-        @if (session('error'))
-            <div class="alert alert-danger" role="alert">
-                {{ session('error') }}
-            </div>
-        @endif
         <main>
             <div class="row" style="margin-left: 80px; margin-top: 80px">
                 <div class="col-6 title">
@@ -151,14 +147,15 @@
             <div class="row" style="margin-left: 80px; margin-top: 40px;">
                 <div class="col-6">
                     <div>
-                        <h3>Periode Tanggal <span id="startDateDisplay">.....</span> s/d <span
-                                id="endDateDisplay">.....</span></h3>
+                        <h3>Periode Tanggal <span id="startDateDisplay">{{ $startDate ?? '.....' }}</span> s/d <span
+                                id="endDateDisplay">{{ $endDate ?? '.....' }}</span></h3>
                     </div>
                     <form action="" method="GET" style="display: flex; align-items: center;">
                         <input type="date" id="startDate" name="start_date"
-                            style="border-radius: 22px; padding-left: 10px; margin-right: 10px;">
+                            style="border-radius: 22px; padding-left: 10px; margin-right: 10px;"
+                            value="{{ $startDate }}">
                         <input type="date" id="endDate" name="end_date"
-                            style="border-radius: 22px; padding-left: 10px;">
+                            style="border-radius: 22px; padding-left: 10px;" value="{{ $endDate }}">
                         <button type="submit" class="btn-display">Tampilkan</button>
                     </form>
                 </div>
@@ -174,22 +171,18 @@
 
             <table>
                 <tr style="background-color: #E2BFB3; height: 80px;">
-
                     <th>Nama Bahan</th>
                     <th>Satuan</th>
                     <th>Jumlah Penggunaan</th>
                 </tr>
 
-                @for ($i = 0; $i < 5; $i++)
+                @foreach ($usageData as $usage)
                     <tr style="height: 60px;">
-                        <td>Susu Cair</td>
-                        <td>Gram</td>
-                        <td>100</td>
+                        <td>{{ $usage->bahanBaku->nama_bahan_baku }}</td>
+                        <td>{{ $usage->bahanBaku->satuan_bahan_baku }}</td>
+                        <td>{{ $usage->total_penggunaan }}</td>
                     </tr>
-                @endfor
-
-
-
+                @endforeach
             </table>
 
             <div class="icon-table">
@@ -197,8 +190,6 @@
                         alt=""></a>
                 <a href=""><img src="image/icon_right_double.png" width="23px" alt=""></a>
             </div>
-
-
         </main>
 
         <script>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DateTime;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use App\Models\BahanBakuUsage;
 use App\Models\PemasukanPerusahaan;
 
 class LaporanController extends Controller
@@ -47,10 +48,27 @@ public function show_chart_penjualan_bulanan() {
 }
 
 
-public function show_laporan_penggunaan_bahanbaku(){
-        
-        return view('ownerandmo.penggunaanBahanbakuLaporan');
+// Controller
+public function show_laporan_penggunaan_bahanbaku(Request $request)
+{
+    // Fetch data from the database
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    $query = BahanBakuUsage::query();
+
+    if ($startDate && $endDate) {
+        $query->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
+    }
+
+    $usageData = $query->with('bahanBaku')
+        ->selectRaw('bahan_baku_id, SUM(jumlah_digunakan) as total_penggunaan')
+        ->groupBy('bahan_baku_id')
+        ->get();
+
+    return view('ownerandmo.penggunaanBahanbakuLaporan', compact('usageData', 'startDate', 'endDate'));
 }
+
 
 
 
