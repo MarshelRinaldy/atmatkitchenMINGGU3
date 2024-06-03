@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Resep;
+use App\Models\Dukpro;
 use App\Models\Produk;
 use App\Models\BahanBaku;
 use Illuminate\Http\Request;
+use App\Models\BahanBakuUsage;
 use App\Http\Controllers\Controller;
-use App\Models\Dukpro;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 
@@ -27,23 +28,72 @@ class ResepController extends Controller
         $bahanBakuIds = $request->bahan_baku_id;
         $jumlahs = $request->jumlah;
 
-        // dd($produkId, $bahanBakuIds, $jumlahs);
-
         if (count($bahanBakuIds) !== count($jumlahs)) {
-        return redirect()->back()->withErrors(['jumlah' => 'Jumlah bahan baku tidak sesuai dengan jumlah bahan yang dipilih.']);
-    }
-        
+            return redirect()->back()->withErrors(['jumlah' => 'Jumlah bahan baku tidak sesuai dengan jumlah bahan yang dipilih.']);
+        }
+
+        // Fetch the product details to check its status and stock
+        $product = Dukpro::find($produkId);
+
+        if (!$product) {
+            return redirect()->back()->withErrors(['product' => 'Produk tidak ditemukan.']);
+        }
+
         foreach ($bahanBakuIds as $key => $bahanBakuId) {
-           
             Resep::create([
                 'produk_id' => $produkId,
                 'bahan_baku_id' => $bahanBakuId,
                 'jumlah' => $jumlahs[$key],
             ]);
+
+            // If the product status is not "Preorder", update BahanBakuUsage
+            if ($product->status !== 'Preorder') {
+                $jumlahDigunakan = $jumlahs[$key] * $product->stok;
+
+                // Create a new BahanBakuUsage entry
+                BahanBakuUsage::create([
+                    'bahan_baku_id' => $bahanBakuId,
+                    'transaksi_id' => null, // Assuming no specific transaction ID is provided
+                    'tanggal_transaksi' => now(),
+                    'jumlah_digunakan' => $jumlahDigunakan,
+                ]);
+
+                // Update the total_digunakan field in BahanBaku
+                $bahanBaku = BahanBaku::find($bahanBakuId);
+                if ($bahanBaku) {
+                    $bahanBaku->total_digunakan += $jumlahDigunakan;
+                    $bahanBaku->save();
+                }
+            }
         }
-        
+
         return redirect()->route('index_resep')->with('success', 'Berhasil Menambah Resep');
     }
+
+
+    // public function tambahResep(Request $request)
+    // {
+    //     $produkId = $request->product_id;
+    //     $bahanBakuIds = $request->bahan_baku_id;
+    //     $jumlahs = $request->jumlah;
+
+    //     // dd($produkId, $bahanBakuIds, $jumlahs);
+
+    //     if (count($bahanBakuIds) !== count($jumlahs)) {
+    //     return redirect()->back()->withErrors(['jumlah' => 'Jumlah bahan baku tidak sesuai dengan jumlah bahan yang dipilih.']);
+    // }
+        
+    //     foreach ($bahanBakuIds as $key => $bahanBakuId) {
+           
+    //         Resep::create([
+    //             'produk_id' => $produkId,
+    //             'bahan_baku_id' => $bahanBakuId,
+    //             'jumlah' => $jumlahs[$key],
+    //         ]);
+    //     }
+        
+    //     return redirect()->route('index_resep')->with('success', 'Berhasil Menambah Resep');
+    // }
 
      public function index_resep(){
         $reseps = Resep::all(); //buatkan where 

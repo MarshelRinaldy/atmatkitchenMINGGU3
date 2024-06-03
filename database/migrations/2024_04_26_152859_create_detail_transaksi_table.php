@@ -23,6 +23,8 @@ return new class extends Migration
 
             // Definisi foreign key untuk produk
             $table->foreign('produk_id')->references('id')->on('dukpro')->onDelete('cascade');
+            
+        
         });
     }
 

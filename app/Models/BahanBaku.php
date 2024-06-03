@@ -12,12 +12,12 @@ class BahanBaku extends Model
     use HasFactory;
     protected $table = 'bahan_baku';
 
-    protected $fillable = ['nama_bahan_baku', 'stok_bahan_baku', 'satuan_bahan_baku', 'harga_bahan_baku'];
+    protected $fillable = ['nama_bahan_baku', 'stok_bahan_baku', 'satuan_bahan_baku', 'harga_bahan_baku', 'total_digunakan'];
 
 
     public function products()
     {
-        return $this->belongsToMany(BahanBaku::class, 'reseps', 'produk_id', 'bahan_baku_id')
+        return $this->belongsToMany(BahanBaku::class, 'reseps', 'produk_id', 'bahan_baku_id',)
             ->using(Resep::class)
             ->withPivot('jumlah')
             ->withTimestamps();

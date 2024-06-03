@@ -161,6 +161,8 @@ Route::patch('/pesanan_dibatalkan/{id}', [CustomerController::class, 'pesanan_di
 //INI UNTUK LAPORAN OWNER DAN MO (MACE)
 Route::get('/show_laporan_penjualan_keseluruhan', [OwnerMoLaporanController::class, 'show_laporan_penjualan_keseluruhan'])->name('show_laporan_penjualan_keseluruhan');
 Route::get('/chart-penjualan-bulanan', [OwnerMoLaporanController::class, 'show_chart_penjualan_bulanan'])->name('chart_penjualan_bulanan');
+Route::get('/show_laporan_penggunaan_bahanbaku', [OwnerMoLaporanController::class, 'show_laporan_penggunaan_bahanbaku'])->name('show_laporan_penggunaan_bahanbaku');
+
 
 //================================= CUSTOMER =================================
 Route::middleware(['auth', CheckRole::class . ':customer'])->group(function () {
@@ -191,7 +193,6 @@ Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     // Route::patch('/BahanBaku/update_BahanBaku/{BahanBaku}', [BahanBakuController::class, 'update_BahanBaku'])->name('update_BahanBaku');
 
     Route::get('/BahanBaku/edit_bahanBaku', 'BahanBakuController@edit_BahanBaku')->name('edit_bahanBaku');
-
     Route::get('/BahanBaku/tampilanDataBahanBaku', [BahanBakuController::class, 'index'])->name('index_bahanBaku');
     Route::get('/BahanBaku/create', [BahanBakuController::class, 'create_BahanBaku'])->name('create_BahanBaku');
     Route::post('/BahanBaku/store_bahanBaku', [BahanBakuController::class, 'store_BahanBaku'])->name('store_BahanBaku');

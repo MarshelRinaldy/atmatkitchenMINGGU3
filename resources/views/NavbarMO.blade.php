@@ -268,6 +268,7 @@
                         </li>
                     </ul>
                 </li>
+
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                         data-bs-target="#transaksi" aria-expanded="false" aria-controls="transaksi">
@@ -362,6 +363,21 @@
                     <a href="{{ route('index_PencatatanPengeluaranLain') }}" class="sidebar-link">
                         <i class="lni lni-agenda"></i>
                         <span>Pengeluaran Lain</span>
+                    </a>
+                </li>
+
+
+                <li class="sidebar-item">
+                    <a href="{{ route('show_laporan_penjualan_keseluruhan') }}" class="sidebar-link">
+                        <i class="lni lni-agenda"></i>
+                        <span>Laporan Penjualan Keseluruhan</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="{{ route('show_laporan_penggunaan_bahanbaku') }}" class="sidebar-link">
+                        <i class="lni lni-agenda"></i>
+                        <span>Laporan Penggunaan BahanBaku</span>
                     </a>
                 </li>
 

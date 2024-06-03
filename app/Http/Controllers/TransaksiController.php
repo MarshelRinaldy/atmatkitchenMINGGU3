@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\Hampers;
+use App\Models\BahanBaku;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use App\Models\HampersDetail;
+use App\Models\BahanBakuUsage;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 
 class TransaksiController extends Controller
 {
@@ -121,17 +125,88 @@ class TransaksiController extends Controller
     return redirect()->route('show_pesanan_telat_bayar')->with('success', 'Berhasil Membatalkan Transaksi Tersebut');
 }
 
+public function pesanan_siap_dikirim_dipickup($id)
+{
+    // Find the transaction and ensure it exists
+    $transaksi = Transaksi::findOrFail($id);
 
-    public function pesanan_siap_dikirim_dipickup($id)
-    {
-        
-        $transaksi = Transaksi::findOrFail($id);
-        $transaksi->status_transaksi = 'sudah dikonfirmasi';
-        $transaksi->save();
+    // Retrieve all detail transactions related to the transaction
+    $detailTransaksis = $transaksi->detailTransaksis;
 
-       
-        return redirect()->route('show_pesanan_diproses');
+    foreach ($detailTransaksis as $detailTransaksi) {
+        // Check if the detail transaction is a hamper
+        if ($detailTransaksi->is_hampers) {
+            // Get the hampers details associated with this hamper
+            $hampersDetails = HampersDetail::where('hampers_id', $detailTransaksi->produk_id)->get();
+
+            foreach ($hampersDetails as $hampersDetail) {
+                $dukpro = $hampersDetail->dukpro;
+
+                // Only proceed if the dukpro status is 'Preorder'
+                if ($dukpro->status === 'Preorder') {
+                    // Get all recipes related to the product in the hamper
+                    $reseps = $dukpro->bahanBakus;
+
+                    foreach ($reseps as $resep) {
+                        // Find the related BahanBaku
+                        $bahanBaku = BahanBaku::find($resep->pivot->bahan_baku_id);
+
+                        // Update the total_digunakan attribute and record usage
+                        if ($bahanBaku) {
+                            $jumlahDigunakan = $resep->pivot->jumlah * $detailTransaksi->jumlah_produk;
+                            $bahanBaku->total_digunakan += $jumlahDigunakan;
+                            $bahanBaku->save();
+
+                            // Record the usage in the BahanBakuUsage table
+                            BahanBakuUsage::create([
+                                'bahan_baku_id' => $bahanBaku->id,
+                                'transaksi_id' => $transaksi->id,
+                                'tanggal_transaksi' => $transaksi->tanggal_transaksi,
+                                'jumlah_digunakan' => $jumlahDigunakan,
+                            ]);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Get the product related to the detail transaction
+            $produk = $detailTransaksi->produk;
+
+            // Only proceed if the product status is 'Preorder'
+            if ($produk->status === 'Preorder') {
+                // Get all recipes related to the product
+                $reseps = $produk->bahanBakus;
+
+                foreach ($reseps as $resep) {
+                    // Find the related BahanBaku
+                    $bahanBaku = BahanBaku::find($resep->pivot->bahan_baku_id);
+
+                    // Update the total_digunakan attribute and record usage
+                    if ($bahanBaku) {
+                        $jumlahDigunakan = $resep->pivot->jumlah * $detailTransaksi->jumlah_produk;
+                        $bahanBaku->total_digunakan += $jumlahDigunakan;
+                        $bahanBaku->save();
+
+                        // Record the usage in the BahanBakuUsage table
+                        BahanBakuUsage::create([
+                            'bahan_baku_id' => $bahanBaku->id,
+                            'transaksi_id' => $transaksi->id,
+                            'tanggal_transaksi' => $transaksi->tanggal_transaksi,
+                            'jumlah_digunakan' => $jumlahDigunakan,
+                        ]);
+                    }
+                }
+            }
+        }
     }
+
+    // Update the transaction status
+    $transaksi->status_transaksi = 'sudah dikonfirmasi';
+    $transaksi->save();
+
+    // Redirect to the 'show_pesanan_diproses' route
+    return redirect()->route('show_pesanan_diproses');
+}
 
     
 }
