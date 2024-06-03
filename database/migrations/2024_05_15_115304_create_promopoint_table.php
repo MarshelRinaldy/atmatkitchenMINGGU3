@@ -22,7 +22,6 @@ class CreatePromopointTable extends Migration
             $table->dateTime('tanggal_berakhir');
             $table->text('deskripsi');
             $table->timestamps();
-
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
@@ -37,4 +36,3 @@ class CreatePromopointTable extends Migration
         Schema::dropIfExists('promopoints');
     }
 }
-

@@ -399,13 +399,13 @@ Route::middleware(['auth', CheckRole::class . ':mo'])->group(function () {
 });
 
 
-Route::middleware(['auth', CheckRole::class . ':owner'])->group(function () {
-    Route::group(['prefix' => 'owner', 'as' => 'mo.'], function () {
-        // show_konfirmasi
-        Route::get('laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
-        Route::get('laporan/stok_bb', [LaporanController::class, 'stok_bb'])->name('laporan.stok_bb');
-    });
-});
+// Route::middleware(['auth', CheckRole::class . ':owner'])->group(function () {
+//     Route::group(['prefix' => 'owner', 'as' => 'mo.'], function () {
+//         // show_konfirmasi
+//         Route::get('laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+//         Route::get('laporan/stok_bb', [LaporanController::class, 'stok_bb'])->name('laporan.stok_bb');
+//     });
+// });
 
 
 // =============================== CUSTOMER ===============================

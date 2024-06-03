@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\mo;
 
-use App\Models\Transaksi;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use DateTime;
 use App\Models\BahanBaku;
+use App\Models\Transaksi;
+use App\Models\PromoPoint;
+use Illuminate\Http\Request;
 use App\Models\CustomerSaldo;
 use App\Models\PemasukanPerusahaan;
-use App\Models\PromoPoint;
-use DateTime;
+use App\Http\Controllers\Controller;
+use App\Models\PencatatanPengeluaranLain;
 
 class LaporanController extends Controller
 {
@@ -56,7 +57,7 @@ class LaporanController extends Controller
                 }
             }
         }
-
+        
         return view('mo.laporan.penjualan', compact('transaksis', 'produkTerjual'));
     }
 
@@ -64,6 +65,18 @@ class LaporanController extends Controller
         $bahanBakus = BahanBaku::all();
 
         return view('mo.laporan.stok_bb', compact('bahanBakus'));
+    }
+
+    public function pemasukan()
+    {
+        $datas = PemasukanPerusahaan::whereMonth('created_at', date('m'))->get();
+        return view('mo.laporan.pemasukan', compact('datas'));
+    }
+
+    public function pengeluaran()
+    {
+        $datas = PencatatanPengeluaranLain::whereMonth('created_at', date('m'))->get();
+        return view('mo.laporan.pengeluaran', compact('datas'));
     }
 
 }

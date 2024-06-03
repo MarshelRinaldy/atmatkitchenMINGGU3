@@ -141,54 +141,54 @@ class DatabaseSeeder extends Seeder
 
         // PAKE DARI SINI
 
-        User::factory()->create([
+//         User::factory()->create([
 
-    'name' => 'customer',
-    'email' => 'customer1@gmail.com',
-    'username' => 'customer',
-    'role' => 'customer',
-    'password' => bcrypt('customer123'),
-    'address' => 'JL. alibudin',
-    'date_of_birth' => '2024-04-29',
-    'phone_number' => '08551515523',
-    'gender' => 'male',
-]);
+//     'name' => 'customer',
+//     'email' => 'customer1@gmail.com',
+//     'username' => 'customer',
+//     'role' => 'customer',
+//     'password' => bcrypt('customer123'),
+//     'address' => 'JL. alibudin',
+//     'date_of_birth' => '2024-04-29',
+//     'phone_number' => '08551515523',
+//     'gender' => 'male',
+// ]);
 
-User::factory()->create([
-    'name' => 'customer2',
-    'email' => 'customer2@gmail.com',
-    'username' => 'customer2',
-    'role' => 'customer',
-    'password' => bcrypt('customer123'),
-    'address' => 'JL. hasanuddin',
-    'date_of_birth' => '2024-04-29',
-    'phone_number' => '08551515523',
-    'gender' => 'male',
-]);
+// User::factory()->create([
+//     'name' => 'customer2',
+//     'email' => 'customer2@gmail.com',
+//     'username' => 'customer2',
+//     'role' => 'customer',
+//     'password' => bcrypt('customer123'),
+//     'address' => 'JL. hasanuddin',
+//     'date_of_birth' => '2024-04-29',
+//     'phone_number' => '08551515523',
+//     'gender' => 'male',
+// ]);
 
-User::factory()->create([
-    'name' => 'Manajer Operasional',
-    'email' => 'mo1@gmail.com',
-    'username' => 'mo1',
-    'role' => 'mo',
-    'password' => bcrypt('mo123'),
-    'address' => 'JL. sukarto',
-    'date_of_birth' => '2024-04-29',
-    'phone_number' => '0841241241',
-    'gender' => 'male',
-]);
+// User::factory()->create([
+//     'name' => 'Manajer Operasional',
+//     'email' => 'mo1@gmail.com',
+//     'username' => 'mo1',
+//     'role' => 'mo',
+//     'password' => bcrypt('mo123'),
+//     'address' => 'JL. sukarto',
+//     'date_of_birth' => '2024-04-29',
+//     'phone_number' => '0841241241',
+//     'gender' => 'male',
+// ]);
 
-User::factory()->create([
-    'name' => 'Admin 1',
-    'email' => 'admin1@gmail.com',
-    'username' => 'admin1',
-    'role' => 'admin',
-    'password' => bcrypt('admin123'),
-    'address' => 'JL. sukarto',
-    'date_of_birth' => '2024-04-29',
-    'phone_number' => '0841241241',
-    'gender' => 'male',
-]);
+// User::factory()->create([
+//     'name' => 'Admin 1',
+//     'email' => 'admin1@gmail.com',
+//     'username' => 'admin1',
+//     'role' => 'admin',
+//     'password' => bcrypt('admin123'),
+//     'address' => 'JL. sukarto',
+//     'date_of_birth' => '2024-04-29',
+//     'phone_number' => '0841241241',
+//     'gender' => 'male',
+// ]);
 
 
  BahanBaku::insert([
@@ -387,7 +387,7 @@ User::factory()->create([
 // foreach ($detailTransaksis as $detailTransaksi) {
 //     DetailTransaksi::create($detailTransaksi);
 // }
-
+   User::factory()->create([
             'name' => 'customer',
             'email' => 'customer1@gmail.com',
             'username' => 'customer',
@@ -431,7 +431,19 @@ User::factory()->create([
             'password' => bcrypt('admin123'),
             'address' => 'JL. sukarto',
             'date_of_birth' => '2024-04-29',
-            'phone_number' => '0841241241',
+            'phone_number' => '14213213',
+            'gender' => 'male',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Owner 1',
+            'email' => 'owner1@gmail.com',
+            'username' => 'owner1',
+            'role' => 'owner',
+            'password' => bcrypt('owner123'),
+            'address' => 'JL. Rumah Owner',
+            'date_of_birth' => '2024-04-29',
+            'phone_number' => '0855231',
             'gender' => 'male',
         ]);
 
