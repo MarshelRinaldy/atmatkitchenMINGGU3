@@ -303,78 +303,75 @@
                     </ul>
 
                     <ul class="food-menu-list">
-                       @foreach ($produk as $item)
-                       <li>
-                        <div class="food-menu-card">
+                        @foreach ($produk as $item)
+                            <li>
+                                <div class="food-menu-card">
 
-                            <div class="card-banner">
-                                <img src="{{ asset('./storage/dukpro/' . $item->image) }}" style="width: 300px;" loading="lazy"
-                                    alt="cake" class="w-100">
-                                <button class="btn food-menu-btn">Order Now</button>
-                            </div>
+                                    <div class="card-banner">
+                                        <img src="{{ asset('./storage/dukpro/' . $item->image) }}"
+                                            style="width: 300px;" loading="lazy" alt="cake" class="w-100">
+                                        <button class="btn food-menu-btn">Order Now</button>
+                                    </div>
 
-                            <div class="wrapper">
-                                <p class="category">Produk</p>
+                                    <div class="wrapper">
+                                        <p class="category">Produk</p>
 
-                                <div class="rating-wrapper">
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
+                                        <div class="rating-wrapper">
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="h3 card-title">{{ $item['nama'] }}</h3>
+
+                                    <div class="price-wrapper">
+
+                                        <p class="price-text">Price:</p>
+
+                                        <data class="price">Rp. {{ $item['harga'] }}</data>
+                                    </div>
+
                                 </div>
-                            </div>
-
-                            <h3 class="h3 card-title">{{ $item['nama']}}</h3>
-
-                            <div class="price-wrapper">
-
-                                <p class="price-text">Price:</p>
-
-                                <data class="price">Rp. {{ $item['harga']}}</data>
-
-
-
-                            </div>
-
-                        </div>
-                    </li>
-                       @endforeach
+                            </li>
+                        @endforeach
                     </ul>
                     <h2 class="h2 section-title">Our Hampers</h2>
                     <ul class="food-menu-list">
 
                         @foreach ($hampers as $hamper)
-                        <li>
-                            <div class="food-menu-card">
-                                <div class="card-banner">
-                                    <img src="{{ asset('./storage/hampers/' . $hamper->image) }}" style="width: 300px;"
-                                        loading="lazy" alt="hamper" class="w-100">
-                                    <div class="badge">New</div>
-                                    <form action="{{ route('customer.cart.add') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="hamper_id" value="{{ $hamper->id }}">
-                                        <button type="submit" class="btn food-menu-btn">Add To Cart</button>
-                                    </form>
-                                </div>
-                                <div class="wrapper">
-                                    <p class="category">Hamper</p>
-                                    <div class="rating-wrapper">
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
+                            <li>
+                                <div class="food-menu-card">
+                                    <div class="card-banner">
+                                        <img src="{{ asset('./storage/hampers/' . $hamper->image) }}"
+                                            style="width: 300px;" loading="lazy" alt="hamper" class="w-100">
+                                        <div class="badge">New</div>
+                                        <form action="{{ route('customer.cart.add') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="hamper_id" value="{{ $hamper->id }}">
+                                            <button type="submit" class="btn food-menu-btn">Add To Cart</button>
+                                        </form>
+                                    </div>
+                                    <div class="wrapper">
+                                        <p class="category">Hamper</p>
+                                        <div class="rating-wrapper">
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                            <ion-icon name="star"></ion-icon>
+                                        </div>
+                                    </div>
+                                    <h3 class="h3 card-title">{{ $hamper['nama'] }}</h3>
+                                    <div class="price-wrapper">
+                                        <p class="price-text">Price:</p>
+                                        <data class="price">Rp. {{ $hamper['harga'] }}</data>
+                                        {{-- stok --}}
                                     </div>
                                 </div>
-                                <h3 class="h3 card-title">{{ $hamper['nama'] }}</h3>
-                                <div class="price-wrapper">
-                                    <p class="price-text">Price:</p>
-                                    <data class="price">Rp. {{ $hamper['harga'] }}</data>
-                                    {{-- stok --}}
-                                </div>
-                            </div>
-                        </li>
+                            </li>
                         @endforeach
                     </ul>
                 </div>

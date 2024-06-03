@@ -15,60 +15,65 @@ use DateTime;
 class TransaksiController extends Controller
 {
 
-    public function show_konfirmasi_pesanan(){
+    public function show_konfirmasi_pesanan()
+    {
         $transaksis = Transaksi::with('user')
-        ->where('status_transaksi', 'menunggu konfirmasi mo')
-        ->get();
+            ->where('status_transaksi', 'menunggu konfirmasi mo')
+            ->get();
 
         return view('mo.konfirmasiPesanan', compact('transaksis'));
     }
 
     public function konfirmasi_pesanan_accept($id)
-{
-    $transaksi = Transaksi::find($id);
+    {
+        $transaksi = Transaksi::find($id);
 
-    if (!$transaksi) {
-        return response()->json(['message' => 'Transaction not found'], 404);
-    }
+        if (!$transaksi) {
+            return response()->json(['message' => 'Transaction not found'], 404);
+        }
 
-    $detailTransaksis = $transaksi->detailTransaksis;
-    $error = [];
-    $isPreorder = false;
-    $isAvailable = false;
+        $detailTransaksis = $transaksi->detailTransaksis;
+        $error = [];
+        $isPreorder = false;
+        $isAvailable = false;
 
-    foreach ($detailTransaksis as $detailTransaksi) {
-        $produk = $detailTransaksi->produk;
-        $bahan_baku = $produk->bahanBakus;
-        
-        foreach ($bahan_baku as $bahan) {
-            $stok = $bahan->stok_bahan_baku;
-            $jumlah = $detailTransaksi->jumlah_produk * $bahan->pivot->jumlah;
-            
-            if ($stok < $jumlah) {
-                $error[] = 'Stok ' . $bahan->nama_bahan_baku . ' tidak mencukupi. Stok tersisa ' . $stok . ' dibutuhkan ' . $jumlah;
+        // if (is_null($detailTransaksis) || $detailTransaksis->isEmpty()) {
+        //     return response()->json(['message' => 'No transaction details found'], 404);
+        // }
+
+        foreach ($detailTransaksis as $detailTransaksi) {
+            $produk = $detailTransaksi->produk;
+            $bahan_baku = $produk->bahanBakus;
+
+            foreach ($bahan_baku as $bahan) {
+                $stok = $bahan->stok_bahan_baku;
+                $jumlah = $detailTransaksi->jumlah_produk * $bahan->pivot->jumlah;
+
+                if ($stok < $jumlah) {
+                    $error[] = 'Stok ' . $bahan->nama_bahan_baku . ' tidak mencukupi. Stok tersisa ' . $stok . ' dibutuhkan ' . $jumlah;
+                }
+            }
+
+            // Check product status
+            if ($produk->status == 'Preorder') {
+                $isPreorder = true;
+            } else if ($produk->status == 'Available') {
+                $isAvailable = true;
             }
         }
 
-        // Check product status
-        if ($produk->status == 'Preorder') {
-            $isPreorder = true;
-        } else if ($produk->status == 'Available') {
-            $isAvailable = true;
+        if (count($error) > 0) {
+            return redirect()->route('mo.show_konfirmasi_pesanan')->with('error', $error);
         }
-    }
 
-    if (count($error) > 0) {
-        return redirect()->route('mo.show_konfirmasi_pesanan')->with('error', $error);
-    }
+        // Set transaction status based on product status
+        if ($isPreorder) {
+            $transaksi->status_transaksi = "menunggu pemrosesan pesanan";
+        } else if ($isAvailable) {
+            $transaksi->status_transaksi = "sedang dikemas";
+        }
 
-    // Set transaction status based on product status
-    if ($isPreorder) {
-        $transaksi->status_transaksi = "menunggu pemrosesan pesanan";
-    } else if ($isAvailable) {
-        $transaksi->status_transaksi = "sedang dikemas";
-    }
-
-    $transaksi->save();
+        $transaksi->save();
         //kurangi stok bahan baku
         foreach ($detailTransaksis as $detailTransaksi) {
             $produk = $detailTransaksi->produk;
@@ -137,6 +142,53 @@ class TransaksiController extends Controller
         return redirect()->route('mo.show_konfirmasi_pesanan')->with('success', 'Pesanan berhasil diterima dan segera di proses');
     }
 
+    // public function konfirmasi_pesanan_reject($id)
+    // {
+    //     $transaksi = Transaksi::find($id);
+
+    //     if (!$transaksi) {
+    //         return response()->json(['message' => 'Transaction not found'], 404);
+    //     }
+    //     //tambah saldo customer
+    //     $saldo = new CustomerSaldo();
+    //     $saldo->user_id = $transaksi->user_id;
+    //     $saldo->jenis_transaksi = 'refund';
+    //     $saldo->jumlah = $transaksi->total_harga;
+    //     $saldo->saldo = $transaksi->user->saldo + $transaksi->total_harga;
+    //     $saldo->keterangan = 'Refund pesanan ' . $transaksi->id;
+    //     $saldo->status = 'success';
+    //     $saldo->save();
+
+    //     $transaksi->status_transaksi = "ditolak";
+    //     $transaksi->save();
+
+    //     $transaksi = Transaksi::find($id);
+
+    //     if (!$transaksi) {
+    //         return response()->json(['message' => 'Transaction not found'], 404);
+    //     }
+
+    //     // Mengakses detail transaksi untuk mendapatkan informasi stok bahan baku
+    //     foreach ($transaksi->detailTransaksis as $detailTransaksi) {
+    //         foreach ($detailTransaksi->produk->bahan_bakus as $bahan) {
+    //             // Perbarui nilai stok bahan baku
+    //             // if (!array_key_exists($item->id, $stok)) {
+    //             //     $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+    //             // } else {
+    //             //     $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+    //             // }
+
+    //             if (isset($stok_bahan[$bahan->id])) {
+    //                 $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+    //             } else {
+    //                 $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+    //             }
+    //         }
+    //     }
+
+    //     return redirect()->route('mo.show_konfirmasi_pesanan')->with('success', 'Pesanan berhasil ditolak');
+    // }
+
     public function konfirmasi_pesanan_reject($id)
     {
         $transaksi = Transaksi::find($id);
@@ -144,6 +196,7 @@ class TransaksiController extends Controller
         if (!$transaksi) {
             return response()->json(['message' => 'Transaction not found'], 404);
         }
+
         //tambah saldo customer
         $saldo = new CustomerSaldo();
         $saldo->user_id = $transaksi->user_id;
@@ -157,8 +210,77 @@ class TransaksiController extends Controller
         $transaksi->status_transaksi = "ditolak";
         $transaksi->save();
 
+        $transaksi = Transaksi::find($id);
+
+        if (!$transaksi) {
+            return response()->json(['message' => 'Transaction not found'], 404);
+        }
+
+        // Mengakses detail transaksi untuk mendapatkan informasi stok bahan baku
+        // foreach ($transaksi->detailTransaksis as $detailTransaksi) {
+        //     foreach ($detailTransaksi->produk->bahan_bakus as $bahan) {
+        //         // Perbarui nilai stok bahan baku
+        //         if (!array_key_exists($item->id, $stok)) {
+        //             $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+        //         } else {
+        //             $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+        //         }
+
+        //         // if (isset($stok_bahan[$bahan->id])) {
+        //         //     $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+        //         // } else {
+        //         //     $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+        //         // }
+        //     }
+        // }
+
+        // foreach ($transaksi->detailTransaksis as $detailTransaksi) {
+        //     foreach ($detailTransaksi->produk->bahan_bakus as $bahan) {
+        //         // Perbarui nilai stok bahan baku
+        //         if (!array_key_exists($bahan->id, $stok_bahan)) {
+        //             $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+        //         } else {
+        //             $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+        //         }
+
+        //         // if (isset($stok_bahan[$bahan->id])) {
+        //         //     $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+        //         // } else {
+        //         //     $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+        //         // }
+        //     }
+        // }
+
+        // $stok_bahan = [];  // Inisialisasi array kosong untuk menyimpan stok bahan baku
+
+        // foreach ($transaksi->detailTransaksis as $detailTransaksi) {
+        //     foreach ($detailTransaksi->produk->bahan_bakus as $bahan) {
+        //         // Perbarui nilai stok bahan baku
+        //         if (!array_key_exists($bahan->id, $stok_bahan)) {
+        //             $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+        //         } else {
+        //             $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+        //         }
+        //     }
+        // }
+
+        $stok_bahan = [];  // Inisialisasi array kosong untuk menyimpan stok bahan baku
+
+        foreach ($transaksi->detailTransaksis as $detailTransaksi) {
+            if (isset($detailTransaksi->produk) && isset($detailTransaksi->produk->bahan_bakus)) {
+                foreach ($detailTransaksi->produk->bahan_bakus as $bahan) {
+                    if (isset($bahan->id) && isset($bahan->stok_bahan_baku) && isset($bahan->pivot->jumlah)) {
+                        // Perbarui nilai stok bahan baku
+                        if (!array_key_exists($bahan->id, $stok_bahan)) {
+                            $stok_bahan[$bahan->id] = $bahan->stok_bahan_baku - ($detailTransaksi->jumlah * $bahan->pivot->jumlah);
+                        } else {
+                            $stok_bahan[$bahan->id] -= $detailTransaksi->jumlah * $bahan->pivot->jumlah;
+                        }
+                    }
+                }
+            }
+        }
 
         return redirect()->route('mo.show_konfirmasi_pesanan')->with('success', 'Pesanan berhasil ditolak');
     }
-
 }
