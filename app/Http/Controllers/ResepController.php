@@ -53,7 +53,7 @@ class ResepController extends Controller
                 // Create a new BahanBakuUsage entry
                 BahanBakuUsage::create([
                     'bahan_baku_id' => $bahanBakuId,
-                    'transaksi_id' => null, // Assuming no specific transaction ID is provided
+                    'transaksi_id' => null, 
                     'tanggal_transaksi' => now(),
                     'jumlah_digunakan' => $jumlahDigunakan,
                 ]);
@@ -71,29 +71,6 @@ class ResepController extends Controller
     }
 
 
-    // public function tambahResep(Request $request)
-    // {
-    //     $produkId = $request->product_id;
-    //     $bahanBakuIds = $request->bahan_baku_id;
-    //     $jumlahs = $request->jumlah;
-
-    //     // dd($produkId, $bahanBakuIds, $jumlahs);
-
-    //     if (count($bahanBakuIds) !== count($jumlahs)) {
-    //     return redirect()->back()->withErrors(['jumlah' => 'Jumlah bahan baku tidak sesuai dengan jumlah bahan yang dipilih.']);
-    // }
-        
-    //     foreach ($bahanBakuIds as $key => $bahanBakuId) {
-           
-    //         Resep::create([
-    //             'produk_id' => $produkId,
-    //             'bahan_baku_id' => $bahanBakuId,
-    //             'jumlah' => $jumlahs[$key],
-    //         ]);
-    //     }
-        
-    //     return redirect()->route('index_resep')->with('success', 'Berhasil Menambah Resep');
-    // }
 
      public function index_resep(){
         $reseps = Resep::all(); //buatkan where 
@@ -116,6 +93,70 @@ class ResepController extends Controller
         $bahanbakus = BahanBaku::all();
         return view('admin.updateResep', compact('reseps', 'allproduks' , 'produk', 'bahanbakus'));
      }
+
+
+//      public function update_resep(Request $request, $produk)
+// {
+//     // Fetch the existing resep entries for the given product
+//     $existingReseps = Resep::where('produk_id', $produk)->get();
+//     $existingBahanBakuUsage = [];
+
+//     // Store existing usage for comparison
+//     foreach ($existingReseps as $resep) {
+//         $existingBahanBakuUsage[$resep->bahan_baku_id] = $resep->jumlah;
+//     }
+
+//     // Hapus semua entri resep yang memiliki produk_id sesuai dengan yang dikirim dari view
+//     Resep::where('produk_id', $produk)->delete();
+
+//     // Proses untuk membuat kembali entri resep berdasarkan data dari $request
+//     $produkId = $request->product_id;
+//     $bahanBakuIds = $request->bahan_baku_id;
+//     $jumlahs = $request->jumlah;
+
+//     if (count($bahanBakuIds) !== count($jumlahs)) {
+//         return redirect()->back()->withErrors(['jumlah' => 'Jumlah bahan baku tidak sesuai dengan jumlah bahan yang dipilih.']);
+//     }
+
+//     $product = Dukpro::find($produkId);
+
+//     if (!$product) {
+//         return redirect()->back()->withErrors(['product' => 'Produk tidak ditemukan.']);
+//     }
+
+//     foreach ($bahanBakuIds as $key => $bahanBakuId) {
+//         Resep::create([
+//             'produk_id' => $produkId,
+//             'bahan_baku_id' => $bahanBakuId,
+//             'jumlah' => $jumlahs[$key],
+//         ]);
+
+//         if ($product->status === 'Available') {
+//             $newJumlahDigunakan = $jumlahs[$key] * $product->stok;
+
+//             // Calculate the difference in usage
+//             $oldJumlahDigunakan = ($existingBahanBakuUsage[$bahanBakuId] ?? 0) * $product->stok;
+//             $diff = $newJumlahDigunakan - $oldJumlahDigunakan;
+
+//             if ($diff != 0) {
+//                 BahanBakuUsage::create([
+//                     'bahan_baku_id' => $bahanBakuId,
+//                     'transaksi_id' => null,
+//                     'tanggal_transaksi' => now(),
+//                     'jumlah_digunakan' => $diff,
+//                 ]);
+
+//                 $bahanBaku = BahanBaku::find($bahanBakuId);
+//                 if ($bahanBaku) {
+//                     $bahanBaku->total_digunakan += $diff;
+//                     $bahanBaku->save();
+//                 }
+//             }
+//         }
+//     }
+
+//     return redirect()->route('index_resep')->with('success', 'Resep berhasil diperbarui.');
+// }
 
     public function update_resep(Request $request, $produk)
     {
@@ -170,144 +211,5 @@ class ResepController extends Controller
     // Ganti 'nama_view_anda' dengan nama view Anda
 }
 
-
-// ini adalah fungsi udah benar juga samaaaa
-//     public function update_resep(Request $request)
-// {
-//     // Ambil semua resep untuk produk yang dipilih
-//     $resep = Resep::where('produk_id', $request->product_id)->get();
-
-//     // Loop melalui setiap item resep dan perbarui jumlahnya sesuai data yang diterima dari form
-//     foreach ($resep as $index => $item) {
-//         $item->jumlah = $request->jumlah[$index]; // Update jumlah bahan baku
-//         $item->save(); // Simpan perubahan
-//     }
-
-//     // Ambil produk terkait berdasarkan ID
-//     $produk = $request->product_id;
-
-//     // Ambil ulang resep setelah diperbarui
-//     $reseps = Resep::where('produk_id', $request->product_id)->get();
-
-//     // Ambil semua bahan baku
-//     $bahanbakus = BahanBaku::all();
-
-//     // Redirect atau kembalikan respon sesuai kebutuhan aplikasi Anda
-//     return view('admin.detailResep', compact('reseps', 'produk', 'bahanbakus'));
-// }
-
-
-    // // ini fix digunain udah bisa cuma lom bisa nambah bahan baku
-    //   public function update_resep(Request $request)
-    // {
-    //     $resep = Resep::where('produk_id', $request->product_id)->get();
-
-    //     // Loop melalui setiap item resep dan perbarui jumlahnya sesuai data yang diterima dari form
-    //     foreach ($resep as $index => $item) {
-    //         $item->jumlah = $request->jumlah[$index]; // Update jumlah bahan baku
-    //         $item->save(); // Simpan perubahan
-    //     }
-
-        
-    //     $produk = $request->product_id;
-    //     $reseps = Resep::all(); 
-    //     $bahanbakus = BahanBaku::all();
-    //     // Redirect atau kembalikan respon sesuai kebutuhan aplikasi Anda
-    //     return view('admin.detailResep', compact('reseps', 'produk' , 'bahanbakus')); 
-    // }
-
-    // public function store_resep(Request $request)
-    //     {
-    //         $produkId = $request->product_id;
-    //         $bahanBakuIds = $request->bahan_baku_id;
-    //         $jumlahs = $request->jumlah;
-
-    //         // dd($produkId, $bahanBakuIds, $jumlahs);
-
-    //         if (count($bahanBakuIds) !== count($jumlahs)) {
-    //         return redirect()->back()->withErrors(['jumlah' => 'Jumlah bahan baku tidak sesuai dengan jumlah bahan yang dipilih.']);
-    //     }
-        
-    //     foreach ($bahanBakuIds as $key => $bahanBakuId) {
-           
-    //         $resep = Resep::all();
-
-    //         $resep->update([
-    //        'produk_id' => $produkId,
-    //             'bahan_baku_id' => $bahanBakuId,
-    //             'jumlah' => $jumlahs[$key],
-    //         ]);
-    //     }
-        
-    //     $reseps = Resep::all(); 
-    //     $bahanbakus = BahanBaku::all();
-    //     return view('admin.detailResep', compact('reseps', 'produk', 'bahanbakus'));;
-    // }
-
-    // public function store_resep(Request $request)
-    // {
-    //     $request->validate([
-    //         'nama_resep' => 'required',
-    //         'image' => 'required',
-    //         'bahan_baku' => 'required',
-    //         'deskripsi' => 'required',
-    //         'steps' => 'required',
-    //     ]);
-
-    //     $file = $request->file('image');
-    //     $path = time() . '_' . $request->nama_resep . '.' . $file->getClientOriginalExtension();
-
-    //     Storage::disk('local')->put('public/' . $path, file_get_contents($file));
-
-    //     Resep::create([
-    //         'nama_resep' => $request->nama_resep,
-    //         'image' => $path,
-    //         'bahan_baku' => $request->bahan_baku,
-    //         'deskripsi' => $request->deskripsi,
-    //         'steps' => $request->steps,
-    //     ]);
-
-    //     $reseps = Resep::all();
-
-    //     return view('admin.dataResep', compact('reseps'));
-    // }
-
-   
-
-    // public function show_dataResep(){
-    //     $reseps = Resep::all();
-    //     return view('admin.dataResep', compact('reseps'));
-    // }
-
-    // public function edit_resep(Resep $resep)
-    //     {
-    //       return view('admin.updateResep', compact('resep'));
-    //     }
-
-    // public function update_resep(Resep $resep, Request $request){
-    //     $request->validate([
-    //         'nama_resep' => 'required',
-    //         'image' => 'required',
-    //         'bahan_baku' => 'required',
-    //         'deskripsi' => 'required',
-    //         'steps' => 'required',
-    //     ]);
-
-    //     $file = $request->file('image');
-    //     $path = time() . '_' . $request->nama_resep . '.' . $file->getClientOriginalExtension();
-
-    //     Storage::disk('local')->put('public/' . $path, file_get_contents($file));
-
-    //     $resep->update([
-    //         'nama_resep' => $request->nama_resep,
-    //         'image' => $path,
-    //         'bahan_baku' => $request->bahan_baku,
-    //         'deskripsi' => $request->deskripsi,
-    //         'steps' => $request->steps,
-    //     ]);
-
-    //     $reseps = Resep::all();
-    //     return view('admin.dataResep', compact('reseps'));
-    // }
 
 }
