@@ -251,6 +251,12 @@
                             <a href="{{ route('mo.show_konfirmasi_pesanan') }}" class="sidebar-link">Konfirmasi
                                 Pesanan</a>
                         </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ route('mo.pemrosesanpesanan') }}" class="sidebar-link">Pemrosesan Pesanan</a>
+                        </li>
+
+
                     </ul>
                 </li>
                 <li class="sidebar-item">
@@ -283,6 +289,13 @@
                             <a href="{{ route('mo.laporan.pengeluaran') }}" class="sidebar-link">Laporan
                                 Pengeluaran</a>
                         </li>
+                        <li class="sidebar-item">
+                            <a href="{{ route('mo.laporan.penjualan') }}" class="sidebar-link">Penjualan Bulanan</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="{{ route('mo.laporan.stok_bb') }}" class="sidebar-link">Stok Bahan Baku</a>
+                        </li>
+
                     </ul>
                 </li>
                 <li class="sidebar-item">
