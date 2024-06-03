@@ -86,6 +86,8 @@ class ResepController extends Controller
         return view('admin.detailResep', compact('reseps', 'produk', 'bahanbakus'));
     }
 
+
+    //dilakukan perubahan
     public function updateResep($produk){
         $reseps = Resep::all(); 
         $allproduks = Dukpro::all(); 
