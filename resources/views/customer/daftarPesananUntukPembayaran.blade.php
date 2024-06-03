@@ -852,7 +852,7 @@
                 @endif
             @endforeach
         </div>
-        {{-- 
+        {{--
         <div id="dibatalkan" class="tab-content">
             <h2 class="card-title mb-5">Produk yang dibatalkan</h2>
             @foreach ($transaksis as $transaksi)

@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
 {
-    public function profil_customer(){
+    public function profil_customer()
+    {
         $user = Auth::user();
         return view('customer.profilCustomer', compact('user'));
     }
@@ -38,14 +39,15 @@ class CustomerController extends Controller
         return redirect()->route('dashboardCustomer.index')->with('success', 'Profil berhasil diperbarui.');
     }
 
-    public function history_pesanan(){
+    public function history_pesanan()
+    {
 
-         $transaksis = Transaksi::where('user_id', auth()->user()->id)->with('detailTransaksis.produk')->get();
+        $transaksis = Transaksi::where('user_id', auth()->user()->id)->with('detailTransaksis.produk')->get();
 
         return view('customer.historyPesanan', compact('transaksis'));
     }
 
-      public function searchHistory(Request $request)
+    public function searchHistory(Request $request)
     {
         $search = $request->input('search'); // Mengambil nilai dari input pencarian
 
@@ -58,18 +60,18 @@ class CustomerController extends Controller
         return view('customer.historyPesanan', compact('transaksis'));
     }
 
-//     public function searchHistory(Request $request)
-// {
-//     $search = $request->input('search');
-//     // Query untuk mencari transaksi berdasarkan nama produk
-//     $transaksis = Transaksi::whereHas('detailTransaksis', function ($query) use ($search) {
-//         $query->whereHas('produk', function ($query) use ($search) {
-//             $query->where('nama', 'like', '%' . $search . '%');
-//         });
-//     })->get();
+    //     public function searchHistory(Request $request)
+    // {
+    //     $search = $request->input('search');
+    //     // Query untuk mencari transaksi berdasarkan nama produk
+    //     $transaksis = Transaksi::whereHas('detailTransaksis', function ($query) use ($search) {
+    //         $query->whereHas('produk', function ($query) use ($search) {
+    //             $query->where('nama', 'like', '%' . $search . '%');
+    //         });
+    //     })->get();
 
-//     return view('customer.historyPesanan', compact('transaksis', 'search'));
-// }
+    //     return view('customer.historyPesanan', compact('transaksis', 'search'));
+    // }
 
     public function register(Request $request)
     {
@@ -103,23 +105,24 @@ class CustomerController extends Controller
     }
 
     public function show_payment_pesanan_list()
-{
-    // Mendapatkan user yang sedang login
-    $user = Auth::user();
+    {
+        // Mendapatkan user yang sedang login
+        $user = Auth::user();
 
-    // Mengambil transaksi sesuai dengan user yang sedang login
-    $transaksis = Transaksi::where('user_id', $user->id)
-        ->with('detailTransaksis.produk') // Mengambil detail transaksi dan produk terkait
-        ->get();
+        // Mengambil transaksi sesuai dengan user yang sedang login
+        $transaksis = Transaksi::where('user_id', $user->id)
+            ->with('detailTransaksis.produk') // Mengambil detail transaksi dan produk terkait
+            // ->where('status_transaksi', 'Dibatalkan')  // tambahan baru untuk di batalkan
+            ->get();
 
-    // Mengirim data ke view
-    return view('customer.daftarPesananUntukPembayaran', compact('transaksis'));
-}
+        // Mengirim data ke view
+        return view('customer.daftarPesananUntukPembayaran', compact('transaksis'));
+    }
 
     public function payment_pesanan($id)
     {
 
-      // Mengambil transaksi berdasarkan ID yang diberikan
+        // Mengambil transaksi berdasarkan ID yang diberikan
         $transaksi = Transaksi::with('detailTransaksis.produk', 'user')->findOrFail($id);
 
         // Mengirim data transaksi ke view
@@ -127,7 +130,7 @@ class CustomerController extends Controller
     }
 
 
-   public function store_bukti_pembayaran(Request $request, $id)
+    public function store_bukti_pembayaran(Request $request, $id)
     {
         // Validate the incoming request to ensure the 'image' field is present and is a file.
         // $request->validate([
@@ -173,4 +176,16 @@ class CustomerController extends Controller
         return redirect()->route('dashboardCustomer.index');
     }
 
+    public function pesanan_dibatalkan($id)
+    {
+        // Mengambil objek Transaksi berdasarkan $id
+        $transaksi = Transaksi::findOrFail($id);
+
+        // Ubah status transaksi menjadi 'selesai'
+        $transaksi->status_transaksi = 'dibatalkan';
+        $transaksi->save();
+
+        // Redirect ke halaman home atau halaman lain yang sesuai
+        return redirect()->route('dashboardCustomer.index');
+    }
 }

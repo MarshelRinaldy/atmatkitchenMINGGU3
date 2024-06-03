@@ -22,7 +22,8 @@
                             @csrf
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Nama Hampers</label>
-                                <input type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" value="{{ old('nama') }}" placeholder="Masukkan Nama Hampers">
+                                <input type="text" class="form-control @error('nama') is-invalid @enderror"
+                                    name="nama" value="{{ old('nama') }}" placeholder="Masukkan Nama Hampers">
                                 <!-- error message untuk hampers-->
                                 @error('nama')
                                     <div class="alert alert-danger mt-2">
@@ -47,7 +48,8 @@
 
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Deskripsi Hampers</label>
-                                <textarea class="form-control @error('deskripsi') is-invalid @enderror" name="deskripsi" rows="5" placeholder="Masukkan Deskripsi Hampers">{{ old('deskripsi') }}</textarea>
+                                <textarea class="form-control @error('deskripsi') is-invalid @enderror" name="deskripsi" rows="5"
+                                    placeholder="Masukkan Deskripsi Hampers">{{ old('deskripsi') }}</textarea>
                                 <!-- error message untuk deskripsi -->
                                 @error('deskripsi')
                                     <div class="alert alert-danger mt-2">
@@ -60,7 +62,9 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label class="font-weight-bold">Harga</label>
-                                        <input type="number" class="form-control @error('harga') is-invalid @enderror" name="harga" value="{{ old('harga') }}" placeholder="Masukkan Harga Hampers">
+                                        <input type="number" class="form-control @error('harga') is-invalid @enderror"
+                                            name="harga" value="{{ old('harga') }}"
+                                            placeholder="Masukkan Harga Hampers">
                                         <!-- error message untuk harga -->
                                         @error('harga')
                                             <div class="alert alert-danger mt-2">
@@ -73,7 +77,9 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label class="font-weight-bold">Stok</label>
-                                        <input type="number" class="form-control @error('stok') is-invalid @enderror" name="stok" value="{{ old('stok') }}" placeholder="Masukkan Stok Hampers">
+                                        <input type="number" class="form-control @error('stok') is-invalid @enderror"
+                                            name="stok" value="{{ old('stok') }}"
+                                            placeholder="Masukkan Stok Hampers">
                                         <!-- error message untuk stok -->
                                         @error('stok')
                                             <div class="alert alert-danger mt-2">
@@ -88,7 +94,9 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label class="font-weight-bold">Ukuran Hampers</label>
-                                        <input type="text" class="form-control @error('ukuran') is-invalid @enderror" name="ukuran" value="{{ old('ukuran') }}" placeholder="Masukkan Ukuran Hampers">
+                                        <input type="text" class="form-control @error('ukuran') is-invalid @enderror"
+                                            name="ukuran" value="{{ old('ukuran') }}"
+                                            placeholder="Masukkan Ukuran Hampers">
                                         <!-- error message untuk ukuran -->
                                         @error('ukuran')
                                             <div class="alert alert-danger mt-2">
@@ -101,7 +109,9 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label class="font-weight-bold">Berat</label>
-                                        <input type="text" class="form-control @error('berat') is-invalid @enderror" name="berat" value="{{ old('berat') }}" placeholder="Masukkan Berat Hampers">
+                                        <input type="text" class="form-control @error('berat') is-invalid @enderror"
+                                            name="berat" value="{{ old('berat') }}"
+                                            placeholder="Masukkan Berat Hampers">
                                         <!-- error message untuk berat -->
                                         @error('berat')
                                             <div class="alert alert-danger mt-2">
@@ -114,7 +124,8 @@
 
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold">Gambar Hampers</label>
-                                <input type="file" class="form-control @error('image') is-invalid @enderror" name="image">
+                                <input type="file" class="form-control @error('image') is-invalid @enderror"
+                                    name="image">
                                 <!-- error message untuk image -->
                                 @error('image')
                                     <div class="alert alert-danger mt-2">

@@ -2,6 +2,16 @@
 
 
 use App\Http\Controllers\BahanBakuController;
+use App\Http\Controllers\admin\SaldoController as AdminSaldoController;
+use App\Http\Controllers\customer\SaldoController as CustomerSaldoController;
+use App\Http\Controllers\BahanBakuControllers;
+use App\Http\Controllers\admin\PresensiController;
+use App\Http\Controllers\mo\PenitipController;
+use App\Http\Controllers\mo\PresensiController as MoPresensiController;
+use App\Http\Controllers\mo\SaldoController;
+use App\Http\Controllers\owner\LaporanController as OwnerLaporanController;
+use App\Http\Controllers\owner\PenitipController as OwnerPenitipController;
+use App\Http\Controllers\owner\PresensiController as OwnerPresensiController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\customer\CartController as CustomerCartController;
 use App\Http\Controllers\customer\DashboardCustomerController;
@@ -35,8 +45,7 @@ use App\Http\Middleware\CheckRole;
 
 use App\Models\Customer;
 use App\Models\BahanBaku;
-
-
+use App\Models\Penitip;
 
 
 
@@ -55,7 +64,6 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     ])->save();
 
     return redirect('/login');
-
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 // Route::get('/', function () {
@@ -147,6 +155,7 @@ Route::get('/show_payment_pesanan_list', [CustomerController::class, 'show_payme
 Route::get('/payment_pesanan/{id}', [CustomerController::class, 'payment_pesanan'])->name('payment_pesanan');
 Route::patch('/store/bukti_pembayaran/{id}', [CustomerController::class, 'store_bukti_pembayaran'])->name('store_bukti_pembayaran');
 Route::patch('/pesanan_selesai/{id}', [CustomerController::class, 'pesanan_selesai'])->name('pesanan_selesai');
+Route::patch('/pesanan_dibatalkan/{id}', [CustomerController::class, 'pesanan_dibatalkan'])->name('pesanan_dibatalkan');
 
 
 //INI UNTUK LAPORAN OWNER DAN MO (MACE)
@@ -154,6 +163,17 @@ Route::get('/show_laporan_penjualan_keseluruhan', [OwnerMoLaporanController::cla
 Route::get('/chart-penjualan-bulanan', [OwnerMoLaporanController::class, 'show_chart_penjualan_bulanan'])->name('chart_penjualan_bulanan');
 Route::get('/show_laporan_penggunaan_bahanbaku', [OwnerMoLaporanController::class, 'show_laporan_penggunaan_bahanbaku'])->name('show_laporan_penggunaan_bahanbaku');
 
+
+//================================= CUSTOMER =================================
+Route::middleware(['auth', CheckRole::class . ':customer'])->group(function () {
+    //group route untuk customer
+    Route::group(['prefix' => 'customer'], function () {
+        //store
+        Route::get('/tarik_saldo', [CustomerSaldoController::class, 'tarik_saldo'])->name('customer.tarik_saldo');
+        Route::get('/riwayat_saldo', [CustomerSaldoController::class, 'riwayat_saldo'])->name('customer.riwayat_saldo');
+        Route::post('/tarik_saldo_store', [CustomerSaldoController::class, 'tarik_saldo_store'])->name('customer.tarik_saldo_store');
+    });
+});
 
 // INI UNTUK ADMIN SAJA
 Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
@@ -185,7 +205,7 @@ Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
     Route::delete('/BahanBaku/delete_bahanBaku/{BahanBaku}', [BahanBakuController::class, 'destroy_BahanBaku'])->name('destroy_BahanBaku');
     // Route::get('/BahanBaku/tampilanDataBahanBaku', [BahanBakuController::class, 'store_BahanBaku'])->name('tampilanDataBahanBaku');
 
-    
+
     //hampers controller
     Route::controller(hampersController::class)->group(function () {
         Route::get('/hampers', 'index')->name('hampers.index');
@@ -212,21 +232,19 @@ Route::middleware(['auth', CheckRole::class . ':admin'])->group(function () {
 
         Route::delete('/dukpro/{dukpro}/', 'destroy')->name('dukpro.destroy');
         Route::get('/dukpro/search', 'search')->name('dukpro.search');
-
     });
 
-    Route::controller(PromoPointController::class)->group(function(){
-        Route::get('/promopoint','index')->name('promopoint.index');
-        Route::get('/promopoint/create','create')->name('promopoint.create');
-        Route::post('/promopoint','store')->name('promopoint.store');
+    Route::controller(PromoPointController::class)->group(function () {
+        Route::get('/promopoint', 'index')->name('promopoint.index');
+        Route::get('/promopoint/create', 'create')->name('promopoint.create');
+        Route::post('/promopoint', 'store')->name('promopoint.store');
 
-        Route::get('/promopoint/{promopoint}/edit','edit')->name('promopoint.edit');
-        Route::get('/promopoint/{promopoint}/show','show')->name('promopoint.show');
-        Route::put('/promopoint/{promopoint}/','update')->name('promopoint.update');
+        Route::get('/promopoint/{promopoint}/edit', 'edit')->name('promopoint.edit');
+        Route::get('/promopoint/{promopoint}/show', 'show')->name('promopoint.show');
+        Route::put('/promopoint/{promopoint}/', 'update')->name('promopoint.update');
 
-        Route::delete('/promopoint/{promopoint}/','destroy')->name('promopoint.destroy');
+        Route::delete('/promopoint/{promopoint}/', 'destroy')->name('promopoint.destroy');
         Route::get('/promopoint/search', 'search')->name('promopoint.search');
-
     });
 
 
@@ -260,6 +278,16 @@ Route::middleware(['auth', CheckRole::class . ':mo'])->group(function () {
 
 //INI UNTUK MO
 Route::middleware(['auth', CheckRole::class . ':mo'])->group(function () {
+
+    Route::group(['prefix' => 'mo'], function () {
+        Route::resource('penitip', PenitipController::class)->except(['show']);
+        Route::get('/penitip/rekap', [PenitipController::class, 'rekap'])->name('penitip.rekap');
+        Route::get('/presensi', [MoPresensiController::class, 'index'])->name('mo.presensi');
+        Route::get('/presensi/rekap', [MoPresensiController::class, 'rekap'])->name('mo.presensi.rekap');
+        Route::get('/presensi/detail/{id}', [MoPresensiController::class, 'detail'])->name('mo.presensi.detail');
+        Route::get('/laporan/pemasukan', [LaporanController::class, 'pemasukan'])->name('mo.laporan.pemasukan');
+        Route::get('/laporan/pengeluaran', [LaporanController::class, 'pengeluaran'])->name('mo.laporan.pengeluaran');
+    });
 
     //UNTUK PROFIL MO
     Route::get('/mo/profile', [UserController::class, 'profil_mo'])->name('profil_mo');
@@ -307,7 +335,28 @@ Route::middleware(['auth', CheckRole::class . ':owner'])->group(function () {
         ->middleware('auth', CheckRole::class . ':owner');
     Route::get('/pegawai/{pegawai}/edit_gajiPegawai', [PegawaiController::class, 'edit_gajiPegawai'])->name('edit_gajiPegawai');
     Route::patch('/pegawai/{pegawai}/update_gajiPegawai', [PegawaiController::class, 'update_gajiPegawai'])->name('update_gajiPegawai');
+});
 
+Route::middleware(['auth', CheckRole::class . ':owner'])->group(function () {
+    Route::group(['prefix' => 'owner'], function () {
+        Route::get('/penitip/rekap', [OwnerPenitipController::class, 'rekap'])->name('owner_penitip.rekap');
+        Route::get('/presensi', [OwnerPresensiController::class, 'index'])->name('owner.presensi');
+        Route::get('/presensi/rekap', [OwnerPresensiController::class, 'rekap'])->name('owner.presensi.rekap');
+        Route::get('/presensi/detail/{id}', [OwnerPresensiController::class, 'detail'])->name('owner.presensi.detail');
+        Route::get('/laporan/pemasukan', [OwnerLaporanController::class, 'pemasukan'])->name('owner.laporan.pemasukan');
+        Route::get('/laporan/pengeluaran', [OwnerLaporanController::class, 'pengeluaran'])->name('owner.laporan.pengeluaran');
+    });
+
+    //UNTUK PROFIL OWNER
+    Route::get('/owner/profile', [UserController::class, 'profil_owner'])->name('profil_owner');
+
+    // INI ADALAH UNTUK OWNER
+    Route::get('/owner/bonus', [PegawaiController::class, 'index_gaji_bonus_karyawan'])->name('index_gaji_bonus_karyawan')->middleware('auth', CheckRole::class . ':owner');
+    Route::get('/showGajiPegawai', [PegawaiController::class, 'showGajiPegawai'])
+        ->name('showGajiPegawai')
+        ->middleware('auth', CheckRole::class . ':owner');
+    Route::get('/pegawai/{pegawai}/edit_gajiPegawai', [PegawaiController::class, 'edit_gajiPegawai'])->name('edit_gajiPegawai');
+    Route::patch('/pegawai/{pegawai}/update_gajiPegawai', [PegawaiController::class, 'update_gajiPegawai'])->name('update_gajiPegawai');
 });
 
 // =============================== CUSTOMER ===============================
@@ -335,7 +384,6 @@ Route::middleware(['auth', CheckRole::class . ':customer'])->group(function () {
         Route::get('/transaksi/{id}/nota', [CustomerTransaksiController::class, 'showNota'])->name('transaksi.nota');
         // ============ TRANSAKSI ============
     });
-
 });
 // =============================== CUSTOMER ===============================
 
@@ -379,7 +427,131 @@ Route::get('/dummy/hampers', function () {
         $details->hampers_id = $hampers->id;
         $details->dukpro_id = $i;
         $details->save();
-
     }
     return 'Hampers berhasil dibuat';
+});
+
+// dummy pegawai 10 orang
+// protected $fillable = ['user_id', 'nip', 'gaji', 'bonus'];
+Route::get('/dummy/pegawai', function () {
+    //random gaji harian
+    $gaji_harian = [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000];
+    $rand_bonus = [0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 450000, 500000];
+    for ($i = 10; $i <= 20; $i++) {
+        // buat user
+        $user = new \App\Models\User();
+        $user->name = 'pegawai' . $i;
+        $user->email = 'pegawai' . $i . '@gmail.com';
+        $user->username = 'pegawai' . $i;
+        $user->password = bcrypt('12345678');
+        $user->role = 'pegawai';
+        // addresse, date_of_birth, phone_number, gender
+        $user->address = 'JL. alibud ' . $i;
+        $user->date_of_birth = '2024-04-29';
+        $user->phone_number = '0841662332' . $i;
+        $user->gender = 'male';
+        $user->save();
+        $pegawai = new \App\Models\Pegawai();
+        $pegawai->user_id = $user->id;
+        $pegawai->nip = '1234567880' . $i;
+        $pegawai->gaji = $gaji_harian[array_rand($gaji_harian)];
+        $pegawai->bonus = $rand_bonus[array_rand($rand_bonus)];
+        $pegawai->save();
+    }
+    return 'berhasil';
+});
+
+//dummy presensi
+Route::get('/dummy/presensi', function () {
+    $pegawai = \App\Models\Pegawai::all();
+
+    // Mendapatkan bulan dan tahun sekarang
+    $bulan = date('m');
+    $tahun = date('Y');
+    $hari = cal_days_in_month(CAL_GREGORIAN, $bulan, $tahun);
+
+    // Status presensi yang mungkin
+    $status = ['hadir', 'izin', 'sakit', 'cuti', 'alpha'];
+
+    foreach ($pegawai as $p) {
+        // Mendapatkan angka random antara 1 dan 24
+        $angka = rand(1, 24);
+        for ($i = 1; $i <= $angka; $i++) {
+            $presensi = new \App\Models\Presensi();
+
+            // Mengatur user_id dengan benar
+            $presensi->user_id = $p->user_id;
+
+            // Mengubah $i menjadi format dua digit
+            $tanggal = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $presensi->tanggal = $tahun . '-' . $bulan . '-' . $tanggal;
+
+            // Menetapkan waktu jam_masuk dan jam_keluar secara acak
+            $presensi->jam_masuk = date('H:i:s', rand(strtotime('08:00:00'), strtotime('10:00:00')));
+            $presensi->jam_keluar = date('H:i:s', rand(strtotime('16:00:00'), strtotime('18:00:00')));
+
+            // Menetapkan status secara acak
+            $presensi->status = $status[array_rand($status)];
+
+            // Menyimpan data presensi
+            $presensi->save();
+        }
+    }
+
+    return 'berhasil';
+});
+
+
+//dummy penitip
+// nama' => 'required',
+// 'alamat' => 'required',
+// 'no_ktp' => 'required',
+// 'no_telp' => 'required',
+// 'mulai_kontrak' => 'required',
+// 'akhir_kontrak' => 'required',
+// 'status' => 'required',
+Route::get('/dummy/penitip', function () {
+    $penitip = [
+        [
+            'nama' => 'penitip 4',
+            'alamat' => 'Jl. alibud 1',
+            'no_ktp' => '1234567890',
+            'no_telp' => '081234567890',
+            'mulai_kontrak' => '2024-04-29',
+            'akhir_kontrak' => '2024-04-29',
+            'status' => 'aktif',
+        ],
+        [
+            'nama' => 'penitip 2',
+            'alamat' => 'Jl. alibud 2',
+            'no_ktp' => '1234567891',
+            'no_telp' => '081234567891',
+            'mulai_kontrak' => '2024-04-29',
+            'akhir_kontrak' => '2024-04-29',
+            'status' => 'aktif',
+        ],
+        [
+            'nama' => 'penitip 3',
+            'alamat' => 'Jl. alibud 3',
+            'no_ktp' => '1234567892',
+            'no_telp' => '081234567892',
+            'mulai_kontrak' => '2024-04-29',
+            'akhir_kontrak' => '2024-04-29',
+            'status' => 'aktif',
+        ],
+    ];
+
+    foreach ($penitip as $p) {
+        $penitip = new Penitip();
+        $penitip->nama = $p['nama'];
+        $penitip->alamat = $p['alamat'];
+        $penitip->no_ktp = $p['no_ktp'];
+        $penitip->no_telp = $p['no_telp'];
+        $penitip->mulai_kontrak = $p['mulai_kontrak'];
+        $penitip->akhir_kontrak = $p['akhir_kontrak'];
+        $penitip->status = $p['status'];
+        $penitip->save();
+    }
+
+    return 'berhasil';
 });
